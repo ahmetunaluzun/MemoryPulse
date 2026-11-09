@@ -17,12 +17,29 @@ namespace MemoryPulse
     [DataContract]
     internal sealed class Settings
     {
-        [DataMember] public int CriticalGb = 4;     // below this: red icon, notification, optional purge
-        [DataMember] public int WarningGb = 8;      // below this: amber icon
-        [DataMember] public int IntervalSec = 60;   // background check interval
-        [DataMember] public int CooldownMin = 10;   // minimum gap between two automatic actions
-        [DataMember] public bool AutoClean = true;  // purge standby on critical (needs administrator)
-        [DataMember] public string Language = "auto";
+        [DataMember] public int CriticalGb;     // below this: red icon, notification, optional purge
+        [DataMember] public int WarningGb;      // below this: amber icon
+        [DataMember] public int IntervalSec;    // background check interval
+        [DataMember] public int CooldownMin;    // minimum gap between two automatic actions
+        [DataMember] public bool AutoClean;     // purge standby on critical (needs administrator)
+        [DataMember] public string Language;
+
+        public Settings() => SetDefaults();
+
+        // The JSON serializer skips constructors and field initializers; without this, a field missing from
+        // the file (older file, hand edit) would come back as 0/false instead of its default.
+        [OnDeserializing]
+        private void OnDeserializing(StreamingContext context) => SetDefaults();
+
+        private void SetDefaults()
+        {
+            CriticalGb = 4;
+            WarningGb = 8;
+            IntervalSec = 60;
+            CooldownMin = 10;
+            AutoClean = true;
+            Language = "auto";
+        }
 
         public static Settings Load()
         {
@@ -32,8 +49,9 @@ namespace MemoryPulse
                 {
                     using (var fs = File.OpenRead(AppPaths.SettingsFile))
                     {
-                        var s = (Settings)new DataContractJsonSerializer(typeof(Settings)).ReadObject(fs);
-                        return s.Validated();
+                        if (new DataContractJsonSerializer(typeof(Settings)).ReadObject(fs) is Settings s)
+                            return s.Validated();
+                        Log.Write("ERROR", "Settings file is empty (null), using defaults");
                     }
                 }
             }
