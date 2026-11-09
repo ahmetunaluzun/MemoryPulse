@@ -1,0 +1,90 @@
+{
+  "_name": "English",
+  "_culture": "en-US",
+
+  "menu.open": "Open window",
+  "menu.clean": "Clear cache…",
+  "menu.taskmgr": "Task Manager",
+  "menu.exit": "Exit",
+
+  "tray.tooltip": "MemoryPulse\n{0} available · cache {1}",
+
+  "notify.lowTitle": "Low memory: {0} left",
+  "notify.top": "Top: {0}",
+  "notify.cleaned": "Cache cleared ({0}).",
+  "notify.cleanFailed": "The cache could not be cleared; see the log.",
+  "notify.needsAdmin": "To clear the cache automatically, turn on \"Start with Windows\" in settings.",
+  "notify.autoOff": "Check which programs you can close.",
+
+  "clean.title": "Clear cache",
+  "clean.confirm": "Clearing the cache is rarely needed.\n\nCached (standby) memory is not wasted RAM: Windows hands it to any program that asks, instantly. After clearing, programs and files have to be read from disk again, so the PC may feel slower for a while.\n\nClear it anyway?",
+  "clean.doneTitle": "Cache cleared",
+  "clean.done": "{0} of cache released. Available: {1}",
+  "clean.failed": "The cache could not be cleared. This needs administrator rights; see the log.",
+
+  "card.available": "Available",
+  "card.cached": "Cached",
+  "card.free": "Free",
+  "card.modified": "Modified",
+  "card.commit": "Commit",
+  "card.total": "Total RAM",
+
+  "tip.available": "Memory programs can get right away: free + cached. This is the number to watch.",
+  "tip.cached": "Same value as \"Cached\" in Task Manager: standby + modified pages. It is not wasted RAM; it makes programs open faster.",
+  "tip.standby": "Copies of recently used files and programs kept in RAM. When a program needs memory, Windows releases it instantly. It is not wasted RAM; it makes programs open faster.",
+  "tip.free": "Memory doing nothing at all. Windows prefers to use it as cache, so a low value is normal.",
+  "tip.modified": "Pages whose contents changed and are waiting to be written to disk. After that they become cache.",
+  "tip.commit": "Total memory reserved by programs (RAM + page file) and its limit. Near the limit, programs may fail with out-of-memory errors.",
+  "tip.total": "Physical RAM usable by Windows.",
+  "tip.inUse": "Memory currently used by programs, drivers and Windows.",
+  "tip.clean": "Empties the cache. Rarely needed; click for details.",
+
+  "legend.inUse": "In use {0}",
+  "legend.modified": "Modified {0}",
+  "legend.standby": "Standby {0}",
+  "legend.free": "Free {0}",
+
+  "info.title": "How to read RAM",
+  "info.short": "Cached memory is not wasted. Windows fills spare RAM with recently used files so programs open faster. What matters is the \"Available\" value.",
+  "info.more": "How to read RAM",
+  "info.long": "Available\nMemory programs can get right away (free + cached). This is what tells you whether the PC will slow down.\n\nCached\nCopies of recently used files and programs (standby + modified pages), the same as \"Cached\" in Task Manager. Windows hands the standby part to any program that asks, instantly. A large value is good.\n\nFree\nMemory doing nothing. Windows uses free memory as cache, so it naturally shrinks over time.\n\nModified\nPages waiting to be written to disk.\n\nCommit\nTotal memory reserved by programs and its limit. Getting close to the limit is a real memory shortage.\n\nWhen to worry?\nWhen available memory stays below a few GB, or commit approaches its limit. The fix then is not clearing the cache, but closing the programs using the most RAM, or adding RAM.",
+
+  "list.title": "Programs using the most RAM",
+  "list.program": "Program",
+  "list.count": "Processes",
+  "list.ram": "RAM",
+
+  "btn.clean": "Clear cache…",
+  "btn.refresh": "Refresh",
+  "btn.taskmgr": "Task Manager",
+  "btn.log": "Open log",
+
+  "value.na": "—",
+  "status.updated": "Last update: {0}",
+  "status.admin": "Administrator mode",
+
+  "settings.title": "Settings",
+  "settings.critical": "Critical threshold (GB)",
+  "settings.warning": "Warning threshold (GB)",
+  "settings.interval": "Check interval (s)",
+  "settings.cooldown": "Cooldown (min)",
+  "settings.language": "Language",
+  "settings.languageAuto": "Automatic (Windows language)",
+  "settings.autoClean": "Clear the cache automatically at the critical threshold",
+  "settings.startup": "Start with Windows",
+  "settings.save": "Save",
+  "settings.saved": "Settings saved ({0})",
+  "settings.warningTooLow": "The warning threshold must be higher than the critical threshold.",
+  "settings.saveFailed": "Settings could not be saved: {0}",
+  "settings.startupFailed": "\"Start with Windows\" could not be set. See the log.",
+
+  "tip.critical": "Below this much available RAM the icon turns red and you get a notification.",
+  "tip.warning": "Below this much available RAM the icon turns amber.",
+  "tip.interval": "How often memory is measured in the background.",
+  "tip.cooldown": "Minimum time between two notifications.",
+  "tip.autoClean": "Clears the cache at the critical threshold. It barely raises available memory; the program list in the notification is what really helps. Needs administrator rights: works when \"Start with Windows\" is on.",
+  "tip.startup": "MemoryPulse starts in the notification area when you sign in. Asks for administrator permission once, so automatic cleaning works without a prompt every time.",
+
+  "app.alreadyRunning": "MemoryPulse is already running. Click its icon in the notification area to open the window.",
+  "error.unexpected": "An unexpected error occurred: {0}\n\nDetails are in the log."
+}

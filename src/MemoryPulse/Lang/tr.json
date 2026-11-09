@@ -1,0 +1,90 @@
+{
+  "_name": "Türkçe",
+  "_culture": "tr-TR",
+
+  "menu.open": "Pencereyi aç",
+  "menu.clean": "Önbelleği temizle…",
+  "menu.taskmgr": "Görev Yöneticisi",
+  "menu.exit": "Çıkış",
+
+  "tray.tooltip": "MemoryPulse\n{0} kullanılabilir · önbellekte {1}",
+
+  "notify.lowTitle": "RAM azaldı: {0} kaldı",
+  "notify.top": "En çok: {0}",
+  "notify.cleaned": "Önbellek temizlendi ({0}).",
+  "notify.cleanFailed": "Önbellek temizlenemedi, ayrıntı logda.",
+  "notify.needsAdmin": "Otomatik temizlik için ayarlarda \"Windows ile başlat\"ı açın.",
+  "notify.autoOff": "Hangi programları kapatabileceğinize bakın.",
+
+  "clean.title": "Önbelleği temizle",
+  "clean.confirm": "Önbelleği temizlemek çoğu zaman gerekmez.\n\nÖnbellek (standby) boşa yenmiş RAM değildir: Windows bu belleği bir program istediği anda hemen verir. Temizlikten sonra programlar ve dosyalar bir süre diskten okunacağı için bilgisayar biraz yavaşlayabilir.\n\nYine de temizlensin mi?",
+  "clean.doneTitle": "Önbellek temizlendi",
+  "clean.done": "{0} önbellek boşaltıldı. Kullanılabilir: {1}",
+  "clean.failed": "Önbellek temizlenemedi. Bu işlem yönetici izni ister; ayrıntı logda.",
+
+  "card.available": "Kullanılabilir",
+  "card.cached": "Önbelleğe alınan",
+  "card.free": "Boş",
+  "card.modified": "Değiştirilmiş",
+  "card.commit": "Commit",
+  "card.total": "Toplam RAM",
+
+  "tip.available": "Programların hemen alabileceği bellek: boş + önbellek. İzlenmesi gereken asıl değer budur.",
+  "tip.cached": "Görev Yöneticisi'ndeki \"Önbelleğe alınan\" ile aynı değer: bekleyen (standby) + değiştirilmiş sayfalar. Boşa yenen RAM değildir; programların hızlı açılmasını sağlar.",
+  "tip.standby": "Son kullanılan dosya ve programların RAM'deki kopyası. Bir program bellek isterse Windows burayı anında boşaltır. Boşa yenen RAM değildir; programların hızlı açılmasını sağlar.",
+  "tip.free": "Hiçbir işe yaramadan bekleyen bellek. Windows bunu önbellek için kullanmayı tercih eder; bu yüzden düşük olması normaldir.",
+  "tip.modified": "İçeriği değişmiş, diske yazılmayı bekleyen sayfalar. Yazıldıktan sonra önbelleğe geçer.",
+  "tip.commit": "Programların ayırdığı toplam bellek (RAM + sayfa dosyası) ve üst sınırı. Sınıra yaklaşırsa programlar bellek yetersizliği hatası verebilir.",
+  "tip.total": "Windows'un kullanabildiği fiziksel RAM.",
+  "tip.inUse": "Programların, sürücülerin ve Windows'un şu an kullandığı bellek.",
+  "tip.clean": "Önbelleği boşaltır. Çoğu zaman gerekmez; ayrıntı için tıklayın.",
+
+  "legend.inUse": "Kullanımda {0}",
+  "legend.modified": "Değiştirilmiş {0}",
+  "legend.standby": "Bekleyen (standby) {0}",
+  "legend.free": "Boş {0}",
+
+  "info.title": "RAM nasıl okunur?",
+  "info.short": "Önbellek boşa yenmiş RAM değildir. Windows boş RAM'i son kullandığınız dosyalarla doldurur, programlar böylece daha hızlı açılır. Önemli olan \"Kullanılabilir\" değeridir.",
+  "info.more": "RAM nasıl okunur?",
+  "info.long": "Kullanılabilir\nProgramların hemen alabileceği bellek (boş + önbellek). Bilgisayarın yavaşlayıp yavaşlamayacağını bu değer gösterir.\n\nÖnbelleğe alınan\nSon kullanılan dosya ve programların kopyası (bekleyen + değiştirilmiş sayfalar). Görev Yöneticisi'ndeki \"Önbelleğe alınan\" ile aynıdır. Bekleyen kısmı bir program bellek isterse Windows anında verir. Büyük olması iyidir.\n\nBoş\nKullanılmadan bekleyen bellek. Windows boş belleği önbellek için kullanır; bu yüzden zamanla azalması normaldir.\n\nDeğiştirilmiş\nDiske yazılmayı bekleyen sayfalar.\n\nCommit\nProgramların ayırdığı toplam bellek ve sınırı. Sınıra yaklaşmak gerçek bir bellek sıkıntısıdır.\n\nNe zaman endişelenmeli?\nKullanılabilir bellek sürekli birkaç GB'ın altındaysa veya Commit sınıra yaklaşıyorsa. O zaman çözüm önbelleği temizlemek değil, en çok RAM kullanan programları kapatmak ya da RAM eklemektir.",
+
+  "list.title": "En çok RAM kullanan programlar",
+  "list.program": "Program",
+  "list.count": "Süreç sayısı",
+  "list.ram": "RAM",
+
+  "btn.clean": "Önbelleği temizle…",
+  "btn.refresh": "Yenile",
+  "btn.taskmgr": "Görev Yöneticisi",
+  "btn.log": "Logu aç",
+
+  "value.na": "—",
+  "status.updated": "Son güncelleme: {0}",
+  "status.admin": "Yönetici modu",
+
+  "settings.title": "Ayarlar",
+  "settings.critical": "Kritik eşik (GB)",
+  "settings.warning": "Uyarı eşiği (GB)",
+  "settings.interval": "Kontrol aralığı (sn)",
+  "settings.cooldown": "Bekleme (dk)",
+  "settings.language": "Dil",
+  "settings.languageAuto": "Otomatik (Windows dili)",
+  "settings.autoClean": "Kritik eşikte önbelleği otomatik temizle",
+  "settings.startup": "Windows ile başlat",
+  "settings.save": "Kaydet",
+  "settings.saved": "Ayarlar kaydedildi ({0})",
+  "settings.warningTooLow": "Uyarı eşiği, kritik eşikten büyük olmalı.",
+  "settings.saveFailed": "Ayarlar kaydedilemedi: {0}",
+  "settings.startupFailed": "\"Windows ile başlat\" ayarlanamadı. Ayrıntı logda.",
+
+  "tip.critical": "Kullanılabilir RAM bunun altına inerse ikon kırmızı olur ve bildirim gelir.",
+  "tip.warning": "Kullanılabilir RAM bunun altına inerse ikon sarı olur.",
+  "tip.interval": "Arka planda ne sıklıkla ölçüm yapılacağı.",
+  "tip.cooldown": "İki bildirim arasında en az ne kadar beklenecek.",
+  "tip.autoClean": "Kritik eşikte önbelleği temizler. Kullanılabilir değeri pek artırmaz; asıl yararlı olan bildirimdeki program listesidir. Yönetici izni gerekir: \"Windows ile başlat\" açıkken izinle çalışır.",
+  "tip.startup": "Oturum açılınca MemoryPulse bildirim alanında başlar. Bir kez yönetici izni ister; böylece otomatik temizlik her seferinde izin sormadan çalışır.",
+
+  "app.alreadyRunning": "MemoryPulse zaten çalışıyor. Penceresini açmak için bildirim alanındaki ikona tıklayın.",
+  "error.unexpected": "Beklenmeyen bir hata oluştu: {0}\n\nAyrıntı logda."
+}
