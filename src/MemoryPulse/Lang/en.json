@@ -58,6 +58,7 @@
   "details.openFolder": "Open file location",
   "details.title": "{0} · details",
   "details.summary": "{0} processes, {1} in total",
+  "details.summaryOne": "{0} process, {1} in total",
   "details.gone": "This program is no longer running.",
   "details.folder": "Working folder",
   "details.cmd": "Command line",
@@ -112,5 +113,12 @@
   "tip.startup": "MemoryPulse starts in the notification area when you sign in. Asks for administrator permission once, so automatic cleaning works without a prompt every time.",
 
   "app.alreadyRunning": "MemoryPulse is already running. Click its icon in the notification area to open the window.",
-  "error.unexpected": "An unexpected error occurred: {0}\n\nDetails are in the log."
+  "error.unexpected": "An unexpected error occurred: {0}\n\nDetails are in the log.",
+
+  "update.title": "New version available: MemoryPulse {0}",
+  "update.body": "You are using {0}. Click to open the download page.",
+  "update.menu": "Download the new version ({0})",
+  "update.footer": "New version: {0}",
+  "settings.updates": "Check for new versions",
+  "tip.updates": "Once a day, asks GitHub for the number of the latest release and tells you when a new one is out. Nothing about your PC or its memory is sent; as with any web request, GitHub sees the request's IP address."
 }

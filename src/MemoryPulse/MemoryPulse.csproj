@@ -6,7 +6,7 @@
     <LangVersion>latest</LangVersion>
     <AssemblyName>MemoryPulse</AssemblyName>
     <RootNamespace>MemoryPulse</RootNamespace>
-    <Version>1.1.1</Version>
+    <Version>1.2.0</Version>
     <Product>MemoryPulse</Product>
     <Description>See what is really using your RAM, and learn why cached memory is not wasted.</Description>
     <Copyright>Copyright (c) 2026 Ahmet Ünal Uzun</Copyright>

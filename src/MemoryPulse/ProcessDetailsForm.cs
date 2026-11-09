@@ -111,7 +111,7 @@ namespace MemoryPulse
 
             var first = _items.Find(i => i.Description != null || i.Company != null);
             var sb = new StringBuilder();
-            sb.Append(L.T("details.summary", _items.Count, L.Gb(MemorySnapshot.Gb(total))));
+            sb.Append(L.T(_items.Count == 1 ? "details.summaryOne" : "details.summary", _items.Count, L.Gb(MemorySnapshot.Gb(total))));
             if (first?.Description != null) sb.Append("\n").Append(first.Description);
             if (first?.Company != null) sb.Append("  ·  ").Append(first.Company);
             if (_kernelKey != null && _items.Count > 0) sb.Append("\n").Append(L.T("details.sys.kind"));

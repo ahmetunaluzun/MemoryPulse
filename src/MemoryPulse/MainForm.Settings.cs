@@ -8,7 +8,7 @@ namespace MemoryPulse
     internal sealed partial class MainForm
     {
         private NumericUpDown _critical, _warning, _interval, _cooldown;
-        private CheckBox _autoClean, _startup;
+        private CheckBox _autoClean, _startup, _updates;
         private ComboBox _language;
 
         private Control BuildSettings()
@@ -39,6 +39,7 @@ namespace MemoryPulse
             _autoClean = Check(t, "settings.autoClean", "tip.autoClean", s.AutoClean, 3);
             _startup = Check(t, "settings.startup", "tip.startup", Startup.IsEnabled(), 4);
             t.SetColumnSpan(_startup, 3);
+            _updates = Check(t, "settings.updates", "tip.updates", s.CheckUpdates, 5);
 
             var save = new Button { Text = L.T("settings.save"), AutoSize = true, Padding = new Padding(14, 2, 14, 2), Anchor = AnchorStyles.Right };
             save.Click += (o, e) => SaveSettings();
@@ -87,6 +88,7 @@ namespace MemoryPulse
             s.CooldownMin = (int)_cooldown.Value;
             s.AutoClean = _autoClean.Checked;
             s.Language = lang;
+            s.CheckUpdates = _updates.Checked;
             try { s.Save(); }
             catch (Exception ex) when (ex is System.IO.IOException || ex is UnauthorizedAccessException)
             {

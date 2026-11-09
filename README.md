@@ -23,6 +23,7 @@ MemoryPulse does the opposite: it teaches you to read the numbers, and only step
 - **Notification at the critical threshold** listing the top programs, so you know what to close.
 - **Cache clearing only when you need it:** manually (with an explanation of why it is rarely needed) or automatically at the critical threshold.
 - **Start with Windows** option.
+- **New version notice:** once a day MemoryPulse asks GitHub for the latest version number and tells you when a new release is out (can be turned off).
 - **English and Turkish.** Follows the Windows language by default; can be changed in settings.
 - **Light:** about 26 MB of private memory while sitting in the tray.
 
@@ -46,13 +47,14 @@ MemoryPulse does the opposite: it teaches you to read the numbers, and only step
 | Cooldown | 10 min | Minimum time between two notifications |
 | Clear the cache automatically | On | Clears the cache at the critical threshold (needs *Start with Windows*, see below) |
 | Start with Windows | Off | Starts MemoryPulse in the tray when you sign in |
+| Check for new versions | On | Once a day, asks GitHub for the latest version number and shows a notification when a new release is out |
 | Language | Automatic | Windows language, English or Turkish |
 
 Settings and the log are stored in `%APPDATA%\MemoryPulse\` (`settings.json`, `memorypulse.log`).
 
 ## Privacy
 
-MemoryPulse makes **no network connections** and collects **no telemetry**. Everything stays on your PC: the settings file and a local log.
+MemoryPulse collects **no telemetry**. Its only network connection is the new version check: once a day it asks GitHub (`api.github.com`) for the number of the latest release. Nothing about your PC or its memory is sent; as with any web request, GitHub sees the request's IP address. Turn off *Check for new versions* in the settings and MemoryPulse makes no network connections at all. Everything else stays on your PC: the settings file and a local log.
 
 The details window shows paths and command lines only on screen; they are never written to the log or settings. Values that look like passwords, tokens or keys in a command line are hidden (`****`), but this is a best-effort filter: check before sharing a screenshot of the details window.
 

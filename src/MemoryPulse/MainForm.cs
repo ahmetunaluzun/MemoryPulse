@@ -28,7 +28,7 @@ namespace MemoryPulse
             Font = new Font("Segoe UI", 9.75f);
             AutoScaleMode = AutoScaleMode.Dpi;
             StartPosition = FormStartPosition.CenterScreen;
-            ClientSize = new Size(640, 800);
+            ClientSize = new Size(640, 840);
             MinimumSize = new Size(600, 640);
             AutoScroll = true;
             Padding = new Padding(10);
@@ -194,8 +194,19 @@ namespace MemoryPulse
             f.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
             f.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
             _status = new Label { AutoSize = true, ForeColor = Palette.Muted, Anchor = AnchorStyles.Left };
-            var about = new LinkLabel { Text = $"MemoryPulse {Program.Version} · GitHub", AutoSize = true, Anchor = AnchorStyles.Right };
-            about.LinkClicked += (s, e) => Process.Start(Program.RepoUrl);
+            var about = new LinkLabel { AutoSize = true, Anchor = AnchorStyles.Right };
+            Color linkColor = about.LinkColor;
+            void ShowVersion()
+            {
+                var u = _app.Update;
+                about.Text = u == null ? $"MemoryPulse {Program.Version} · GitHub" : $"MemoryPulse {Program.Version} · " + L.T("update.footer", u.Version);
+                about.LinkColor = u == null ? linkColor : Palette.For(Level.Warning);
+            }
+            ShowVersion();
+            Action onUpdate = ShowVersion;
+            _app.UpdateFound += onUpdate;
+            FormClosed += (s, e) => _app.UpdateFound -= onUpdate;
+            about.LinkClicked += (s, e) => TrayApp.OpenUrl(_app.Update?.Url ?? Program.RepoUrl);
             f.Controls.Add(_status, 0, 0);
             f.Controls.Add(about, 1, 0);
             return f;

@@ -2,6 +2,12 @@
 
 All notable changes to MemoryPulse are listed here. Versions follow [Semantic Versioning](https://semver.org/).
 
+## [1.2.0] - 2026-11-09
+
+- New version notice: once a day MemoryPulse asks GitHub for the latest version number. When a new release is out it shows a notification (once per release), a download item at the top of the tray menu and a link at the bottom of the window. Nothing about your PC is sent. Turn it off with *Check for new versions* in the settings; then MemoryPulse makes no network connections at all.
+- The window is slightly taller so the program list keeps its size with the new setting.
+- Details window: "1 process" instead of "1 processes" when a program has a single running copy.
+
 ## [1.1.1] - 2026-11-09
 
 - Windows' own kernel processes (Memory Compression, System, Registry, Secure System, Idle, vmmem) no longer show a misleading "not readable (needs administrator rights)" in the details window. The window now explains what the process is, for example that Memory Compression holds compressed pages that would otherwise go to disk.

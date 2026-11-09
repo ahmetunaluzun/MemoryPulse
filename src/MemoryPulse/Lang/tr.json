@@ -58,6 +58,7 @@
   "details.openFolder": "Dosya konumunu aç",
   "details.title": "{0} · ayrıntılar",
   "details.summary": "{0} süreç, toplam {1}",
+  "details.summaryOne": "{0} süreç, toplam {1}",
   "details.gone": "Bu program artık çalışmıyor.",
   "details.folder": "Çalışma klasörü",
   "details.cmd": "Komut satırı",
@@ -112,5 +113,12 @@
   "tip.startup": "Oturum açılınca MemoryPulse bildirim alanında başlar. Bir kez yönetici izni ister; böylece otomatik temizlik her seferinde izin sormadan çalışır.",
 
   "app.alreadyRunning": "MemoryPulse zaten çalışıyor. Penceresini açmak için bildirim alanındaki ikona tıklayın.",
-  "error.unexpected": "Beklenmeyen bir hata oluştu: {0}\n\nAyrıntı logda."
+  "error.unexpected": "Beklenmeyen bir hata oluştu: {0}\n\nAyrıntı logda.",
+
+  "update.title": "Yeni sürüm var: MemoryPulse {0}",
+  "update.body": "Şu an {0} kullanıyorsunuz. İndirme sayfasını açmak için tıklayın.",
+  "update.menu": "Yeni sürümü indir ({0})",
+  "update.footer": "Yeni sürüm: {0}",
+  "settings.updates": "Yeni sürümleri denetle",
+  "tip.updates": "Günde bir kez GitHub'dan en son sürümün numarasını sorar ve yeni sürüm çıkınca bildirir. Bilgisayarınız veya belleğiniz hakkında hiçbir bilgi gönderilmez; GitHub, her web isteğinde olduğu gibi isteğin IP adresini görür."
 }
