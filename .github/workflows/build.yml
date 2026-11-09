@@ -40,7 +40,8 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           $hash = (Get-Content MemoryPulse.exe.sha256).Split(' ')[0]
-          $notes = "Download ``MemoryPulse.exe`` and run it. No installation needed (Windows 10/11).`n`nSHA-256: ``$hash``"
+          $version = $env:GITHUB_REF_NAME.TrimStart('v')
+          $notes = (& tools/release-notes.ps1 -Version $version -Sha256 $hash) -join "`n"
           gh release create $env:GITHUB_REF_NAME `
             src\MemoryPulse\bin\Release\net48\MemoryPulse.exe MemoryPulse.exe.sha256 `
-            --title "MemoryPulse $($env:GITHUB_REF_NAME.TrimStart('v'))" --notes $notes
+            --title "MemoryPulse $version" --notes $notes
