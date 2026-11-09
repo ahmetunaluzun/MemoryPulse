@@ -23,7 +23,7 @@ MemoryPulse bunun tersini yapar: rakamları okumayı öğretir ve yalnız gerçe
 - **Kritik eşikte bildirim:** en çok bellek kullanan programları listeler, neyi kapatabileceğinizi görürsünüz.
 - **Önbellek temizliği yalnız gerektiğinde:** elle (neden nadiren gerektiğini anlatan bir onayla) ya da kritik eşikte otomatik.
 - **Windows ile başlat** seçeneği.
-- **Yeni sürüm bildirimi:** MemoryPulse günde bir kez GitHub'dan en son sürümün numarasını sorar, yeni sürüm çıkınca haber verir (kapatılabilir).
+- **Güncellemeleri kontrol et:** penceredeki ve tepsi menüsündeki bağlantı sürümler sayfasını tarayıcıda açar. Yeni sürüm çıkınca e-posta almak için [GitHub sayfasında](https://github.com/ahmetunaluzun/MemoryPulse) *Watch → Custom → Releases* seçin.
 - **Türkçe ve İngilizce.** Varsayılan olarak Windows diline göre açılır, ayarlardan değiştirilebilir.
 - **Hafif:** bildirim alanında dururken yaklaşık 26 MB özel bellek.
 
@@ -47,14 +47,13 @@ MemoryPulse bunun tersini yapar: rakamları okumayı öğretir ve yalnız gerçe
 | Bekleme süresi | 10 dk | İki bildirim arasındaki en kısa süre |
 | Önbelleği otomatik temizle | Açık | Kritik eşikte önbelleği temizler (*Windows ile başlat* gerekir, aşağıya bakın) |
 | Windows ile başlat | Kapalı | Oturum açınca MemoryPulse'ı bildirim alanında başlatır |
-| Yeni sürümleri denetle | Açık | Günde bir kez GitHub'dan en son sürümün numarasını sorar, yeni sürüm çıkınca bildirim gösterir |
 | Dil | Otomatik | Windows dili, Türkçe ya da İngilizce |
 
 Ayarlar ve log `%APPDATA%\MemoryPulse\` altında durur (`settings.json`, `memorypulse.log`).
 
 ## Gizlilik
 
-MemoryPulse **telemetri toplamaz**. Tek ağ bağlantısı yeni sürüm denetimidir: günde bir kez GitHub'a (`api.github.com`) en son sürümün numarasını sorar. Bilgisayarınız veya belleğiniz hakkında hiçbir bilgi gönderilmez; GitHub, her web isteğinde olduğu gibi isteğin IP adresini görür. Ayarlardan *Yeni sürümleri denetle* kutusunu kapatırsanız MemoryPulse hiçbir ağ bağlantısı kurmaz. Geri kalan her şey bilgisayarınızda kalır: ayar dosyası ve yerel bir log.
+MemoryPulse **hiçbir ağ bağlantısı kurmaz** ve **telemetri toplamaz**. Her şey bilgisayarınızda kalır: ayar dosyası ve yerel bir log. *Güncellemeleri kontrol et* yalnız siz tıklayınca sürümler sayfasını tarayıcınızda açar; MemoryPulse kendisi hiçbir yere bağlanmaz.
 
 Ayrıntı penceresindeki yollar ve komut satırları yalnız ekranda gösterilir; loga ve ayar dosyasına yazılmaz. Komut satırında parola, token ya da anahtara benzeyen değerler gizlenir (`****`), ancak bu süzgeç her durumu yakalamayabilir: ayrıntı penceresinin ekran görüntüsünü paylaşmadan önce kontrol edin.
 

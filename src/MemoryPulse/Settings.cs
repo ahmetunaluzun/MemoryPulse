@@ -23,8 +23,6 @@ namespace MemoryPulse
         [DataMember] public int CooldownMin;    // minimum gap between two automatic actions
         [DataMember] public bool AutoClean;     // purge standby on critical (needs administrator)
         [DataMember] public string Language;
-        [DataMember] public bool CheckUpdates;      // ask GitHub once a day for a newer release
-        [DataMember] public string NotifiedVersion; // newest release already announced in a notification
 
         public Settings() => SetDefaults();
 
@@ -41,8 +39,6 @@ namespace MemoryPulse
             CooldownMin = 10;
             AutoClean = true;
             Language = "auto";
-            CheckUpdates = true;
-            NotifiedVersion = null;
         }
 
         public static Settings Load()
@@ -76,7 +72,7 @@ namespace MemoryPulse
                 File.WriteAllBytes(AppPaths.SettingsFile, ms.ToArray());
             }
             Log.Write("INFO", $"Settings saved: critical {CriticalGb} GB, warning {WarningGb} GB, interval {IntervalSec} s, " +
-                              $"cooldown {CooldownMin} min, auto clean {AutoClean}, language {Language}, update check {CheckUpdates}");
+                              $"cooldown {CooldownMin} min, auto clean {AutoClean}, language {Language}");
         }
 
         private Settings Validated()

@@ -15,14 +15,6 @@ namespace MemoryPulse
         private MainForm _form;
         private string _iconKey = "";
         private DateTime _lastAction = DateTime.MinValue;
-        private readonly System.Windows.Forms.Timer _updateTimer = new System.Windows.Forms.Timer { Interval = FirstUpdateCheckMs };
-        private const int FirstUpdateCheckMs = 30 * 1000;           // let Windows finish starting first
-        private const int UpdateCheckEveryMs = 24 * 60 * 60 * 1000; // once a day
-        private string _balloonUrl;                                 // opened when the current notification is clicked
-
-        /// <summary>A newer release found on GitHub, or null.</summary>
-        public UpdateInfo Update { get; private set; }
-        public event Action UpdateFound;
 
         public Settings Settings { get; private set; }
         public event Action<MemorySnapshot> Updated;
@@ -38,9 +30,6 @@ namespace MemoryPulse
             _timer.Tick += (s, e) => Check();
             _timer.Interval = Settings.IntervalSec * 1000;
             _timer.Start();
-            _updateTimer.Tick += (s, e) => CheckForUpdate();
-            if (Settings.CheckUpdates) _updateTimer.Start();
-            _tray.BalloonTipClicked += (s, e) => { if (_balloonUrl != null) OpenUrl(_balloonUrl); };
 
             Log.Write("INFO", $"Started {Program.Version}. Elevated: {Native.IsElevated}. Critical {Settings.CriticalGb} GB, " +
                               $"warning {Settings.WarningGb} GB, interval {Settings.IntervalSec} s");
@@ -62,16 +51,11 @@ namespace MemoryPulse
         {
             var old = _tray.ContextMenuStrip;
             var m = new ContextMenuStrip();
-            if (Update != null)
-            {
-                var u = Update;
-                m.Items.Add(L.T("update.menu", u.Version), null, (s, e) => OpenUrl(u.Url));
-                m.Items.Add(new ToolStripSeparator());
-            }
             var open = m.Items.Add(L.T("menu.open"), null, (s, e) => ShowWindow());
             open.Font = new Font(open.Font, FontStyle.Bold);
             m.Items.Add(L.T("menu.clean"), null, (s, e) => CleanWithConfirm(null));
             m.Items.Add(L.T("menu.taskmgr"), null, (s, e) => Program.OpenTaskManager());
+            m.Items.Add(L.T("update.check"), null, (s, e) => System.Diagnostics.Process.Start(Program.ReleasesUrl));
             m.Items.Add(new ToolStripSeparator());
             m.Items.Add(L.T("menu.exit"), null, (s, e) => ExitApp());
             _tray.ContextMenuStrip = m;
@@ -83,8 +67,6 @@ namespace MemoryPulse
         {
             _timer.Interval = Settings.IntervalSec * 1000;
             _iconKey = "";
-            if (Settings.CheckUpdates && !_updateTimer.Enabled) { _updateTimer.Interval = FirstUpdateCheckMs; _updateTimer.Start(); }
-            else if (!Settings.CheckUpdates) _updateTimer.Stop();
             if (languageChanged)
             {
                 L.Use(Settings.Language);
@@ -146,7 +128,6 @@ namespace MemoryPulse
 
             Log.Write("WARN", $"Critical: available {MemorySnapshot.Gb(before.Available):0.0} GB (threshold {Settings.CriticalGb} GB), " +
                               $"standby {MemorySnapshot.Gb(before.Standby):0.0} GB. {body} Top: {top}");
-            _balloonUrl = null;
             _tray.ShowBalloonTip(10000, L.T("notify.lowTitle", L.Gb(MemorySnapshot.Gb(before.Available))),
                 body + "\n" + L.T("notify.top", top), ToolTipIcon.Warning);
         }
@@ -168,57 +149,11 @@ namespace MemoryPulse
             var after = Check() ?? MemoryInfo.Read();
             Log.Write("INFO", $"Manual clean: {r}. Standby {MemorySnapshot.Gb(before.Standby):0.0} -> " +
                               $"{MemorySnapshot.Gb(after.Standby):0.0} GB, available {MemorySnapshot.Gb(after.Available):0.0} GB");
-            _balloonUrl = null;
             if (r == ActionResult.Ok)
                 _tray.ShowBalloonTip(5000, L.T("clean.doneTitle"),
                     L.T("clean.done", L.Gb(MemorySnapshot.Gb(before.Standby)), L.Gb(MemorySnapshot.Gb(after.Available))), ToolTipIcon.Info);
             else if (r == ActionResult.Failed)
                 MessageBox.Show(owner, L.T("clean.failed"), L.T("clean.title"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
-        }
-
-        private async void CheckForUpdate()
-        {
-            _updateTimer.Stop();
-            try
-            {
-                var found = await UpdateCheck.FindNewerAsync(); // resumes on the UI thread
-                Log.Write("INFO", found == null ? $"Update check: {Program.Version} is the latest"
-                                                : $"Update check: {found.Version} is available ({found.Url})");
-                if (found != null) OnUpdateFound(found);
-            }
-            catch (Exception ex) when (ex is System.Net.WebException || ex is System.IO.IOException || ex is System.IO.InvalidDataException
-                                       || ex is System.Net.ProtocolViolationException || ex is FormatException
-                                       || ex is ArgumentException || ex is OverflowException || ex is NotSupportedException)
-            {
-                Log.Write("INFO", "Update check failed, will try again tomorrow: " + ex.Message);
-            }
-            finally
-            {
-                _updateTimer.Interval = UpdateCheckEveryMs;
-                if (Settings.CheckUpdates) _updateTimer.Start();
-            }
-        }
-
-        private void OnUpdateFound(UpdateInfo found)
-        {
-            bool isNew = Update?.Version != found.Version;
-            Update = found;
-            if (isNew) { BuildMenu(); UpdateFound?.Invoke(); }
-            if (Settings.NotifiedVersion == found.Version) return; // announce each release once
-            _balloonUrl = found.Url;
-            _tray.ShowBalloonTip(15000, L.T("update.title", found.Version), L.T("update.body", Program.Version), ToolTipIcon.Info);
-            Settings.NotifiedVersion = found.Version;
-            try { Settings.Save(); }
-            catch (Exception ex) when (ex is System.IO.IOException || ex is UnauthorizedAccessException)
-            {
-                Log.Write("ERROR", "Could not remember the announced version: " + ex.Message);
-            }
-        }
-
-        public static void OpenUrl(string url)
-        {
-            try { System.Diagnostics.Process.Start(url); }
-            catch (System.ComponentModel.Win32Exception ex) { Log.Write("ERROR", $"Could not open {url}: {ex.Message}"); }
         }
 
         public void ShowWindow()
@@ -248,7 +183,6 @@ namespace MemoryPulse
         {
             Log.Write("INFO", "Exit from tray menu");
             _timer.Stop();
-            _updateTimer.Stop();
             _tray.Visible = false;
             if (_form != null && !_form.IsDisposed) _form.Close();
             ExitThread();
@@ -256,7 +190,7 @@ namespace MemoryPulse
 
         protected override void Dispose(bool disposing)
         {
-            if (disposing) { _timer.Dispose(); _updateTimer.Dispose(); _tray.Icon?.Dispose(); _tray.Dispose(); }
+            if (disposing) { _timer.Dispose(); _tray.Icon?.Dispose(); _tray.Dispose(); }
             base.Dispose(disposing);
         }
     }

@@ -9,6 +9,7 @@ namespace MemoryPulse
     internal static class Program
     {
         public const string RepoUrl = "https://github.com/ahmetunaluzun/MemoryPulse";
+        public const string ReleasesUrl = RepoUrl + "/releases/latest";
         public static readonly string Version =
             Assembly.GetExecutingAssembly().GetName().Version.ToString(3);
 

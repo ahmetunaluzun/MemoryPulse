@@ -2,6 +2,12 @@
 
 All notable changes to MemoryPulse are listed here. Versions follow [Semantic Versioning](https://semver.org/).
 
+## [1.3.0] - 2026-11-09
+
+- Removed the automatic new version check added in 1.2.0. MemoryPulse again makes no network connections at all.
+- Instead, *Check for updates* in the window and the tray menu opens the releases page in your browser, only when you click it. To get an e-mail about new releases, use *Watch → Custom → Releases* on the GitHub page.
+- The window is back to its previous size.
+
 ## [1.2.0] - 2026-11-09
 
 - New version notice: once a day MemoryPulse asks GitHub for the latest version number. When a new release is out it shows a notification (once per release), a download item at the top of the tray menu and a link at the bottom of the window. Nothing about your PC is sent. Turn it off with *Check for new versions* in the settings; then MemoryPulse makes no network connections at all.
