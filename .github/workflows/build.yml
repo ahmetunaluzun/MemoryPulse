@@ -26,7 +26,7 @@ jobs:
           "$hash  MemoryPulse.exe" | Out-File -Encoding ascii MemoryPulse.exe.sha256
           Get-Content MemoryPulse.exe.sha256
 
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v7
         with:
           name: MemoryPulse
           path: |
