@@ -44,7 +44,23 @@ namespace MemoryPulse
 
         private static readonly Regex UrlCredential = new Regex(@"(?i)(\b[a-z][a-z0-9+.-]*://[^\s:/@]+:)[^\s@/]+@", RegexOptions.Compiled);
 
+        // Processes created by the Windows kernel itself (or minimal processes): no program file,
+        // no command line, and nobody - administrator included - can look inside them.
+        private static readonly Dictionary<string, string> KernelProcesses = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["Memory Compression"] = "details.sys.compression",
+            ["System"] = "details.sys.system",
+            ["Registry"] = "details.sys.registry",
+            ["Secure System"] = "details.sys.secure",
+            ["Idle"] = "details.sys.idle",
+            ["vmmem"] = "details.sys.vmmem",
+            ["vmmemWSL"] = "details.sys.vmmem",
+        };
+
         public static bool ShowsCommandLine(string name) => ScriptHosts.Contains(name);
+
+        /// <summary>Language key explaining a kernel process, or null for ordinary programs.</summary>
+        public static string KernelExplanationKey(string name) => KernelProcesses.TryGetValue(name, out var key) ? key : null;
 
         public static List<ProcessInstance> Read(string name)
         {

@@ -2,6 +2,10 @@
 
 All notable changes to MemoryPulse are listed here. Versions follow [Semantic Versioning](https://semver.org/).
 
+## [1.1.1] - 2026-11-09
+
+- Windows' own kernel processes (Memory Compression, System, Registry, Secure System, Idle, vmmem) no longer show a misleading "not readable (needs administrator rights)" in the details window. The window now explains what the process is, for example that Memory Compression holds compressed pages that would otherwise go to disk.
+
 ## [1.1.0] - 2026-11-09
 
 - Program details: double-click a program in the list (or right-click → Details) to see each running copy with its file location, description, publisher, working folder and memory use.

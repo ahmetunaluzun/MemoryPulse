@@ -13,6 +13,7 @@ namespace MemoryPulse
     {
         private readonly string _name;
         private readonly bool _showCmd;
+        private readonly string _kernelKey; // set for kernel processes: explained instead of "not readable"
         private readonly ListView _list;
         private readonly TextBox _detail;
         private readonly Label _summary;
@@ -23,6 +24,7 @@ namespace MemoryPulse
         {
             _name = name;
             _showCmd = ProcessDetails.ShowsCommandLine(name);
+            _kernelKey = ProcessDetails.KernelExplanationKey(name);
             Text = L.T("details.title", name);
             Font = new Font("Segoe UI", 9.75f);
             AutoScaleMode = AutoScaleMode.Dpi;
@@ -100,7 +102,7 @@ namespace MemoryPulse
                 total += i.WorkingSet;
                 var item = new ListViewItem(i.Pid.ToString(L.Culture)) { Tag = i };
                 item.SubItems.Add(Mb(i.WorkingSet));
-                item.SubItems.Add((_showCmd ? ProcessDetails.Arguments(i.CommandLine) : i.WorkingFolder) ?? L.T("details.noAccess"));
+                item.SubItems.Add((_showCmd ? ProcessDetails.Arguments(i.CommandLine) : i.WorkingFolder) ?? L.T(_kernelKey != null ? "details.sys.none" : "details.noAccess"));
                 _list.Items.Add(item);
                 if (i.Pid == keepPid) item.Selected = true;
             }
@@ -112,6 +114,7 @@ namespace MemoryPulse
             sb.Append(L.T("details.summary", _items.Count, L.Gb(MemorySnapshot.Gb(total))));
             if (first?.Description != null) sb.Append("\n").Append(first.Description);
             if (first?.Company != null) sb.Append("  ·  ").Append(first.Company);
+            if (_kernelKey != null && _items.Count > 0) sb.Append("\n").Append(L.T("details.sys.kind"));
             if (_items.Count == 0) sb.Append("\n").Append(L.T("details.gone"));
             _summary.Text = sb.ToString();
             ShowSelected();
@@ -124,6 +127,12 @@ namespace MemoryPulse
             var i = Selected;
             _open.Enabled = i?.Path != null;
             if (i == null) { _detail.Text = ""; return; }
+            if (_kernelKey != null)
+            {
+                _detail.Text = string.Join(Environment.NewLine, L.T("details.f.pid") + i.Pid.ToString(L.Culture),
+                    L.T("details.f.ram") + Mb(i.WorkingSet), "", L.T(_kernelKey));
+                return;
+            }
             string na = L.T("details.noAccess");
             var lines = new List<string>
             {
