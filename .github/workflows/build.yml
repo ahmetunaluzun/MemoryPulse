@@ -1,0 +1,46 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build
+        run: dotnet build src\MemoryPulse\MemoryPulse.csproj -c Release
+
+      - name: Checksum
+        shell: pwsh
+        run: |
+          $exe = 'src\MemoryPulse\bin\Release\net48\MemoryPulse.exe'
+          $hash = (Get-FileHash $exe -Algorithm SHA256).Hash.ToLower()
+          "$hash  MemoryPulse.exe" | Out-File -Encoding ascii MemoryPulse.exe.sha256
+          Get-Content MemoryPulse.exe.sha256
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MemoryPulse
+          path: |
+            src/MemoryPulse/bin/Release/net48/MemoryPulse.exe
+            MemoryPulse.exe.sha256
+
+      - name: Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $hash = (Get-Content MemoryPulse.exe.sha256).Split(' ')[0]
+          $notes = "Download ``MemoryPulse.exe`` and run it. No installation needed (Windows 10/11).`n`nSHA-256: ``$hash``"
+          gh release create $env:GITHUB_REF_NAME `
+            src\MemoryPulse\bin\Release\net48\MemoryPulse.exe MemoryPulse.exe.sha256 `
+            --title "MemoryPulse $($env:GITHUB_REF_NAME.TrimStart('v'))" --notes $notes
