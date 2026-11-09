@@ -9,7 +9,7 @@
     <Version>1.0.0</Version>
     <Product>MemoryPulse</Product>
     <Description>See what is really using your RAM, and learn why cached memory is not wasted.</Description>
-    <Copyright>Copyright (c) 2026 ahmetunaluzun</Copyright>
+    <Copyright>Copyright (c) 2026 Ahmet Ünal Uzun</Copyright>
     <ApplicationIcon>Resources\app.ico</ApplicationIcon>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <PlatformTarget>AnyCPU</PlatformTarget>
