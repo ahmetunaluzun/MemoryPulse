@@ -18,6 +18,7 @@ MemoryPulse bunun tersini yapar: rakamları okumayı öğretir ve yalnız gerçe
 
 - **Anlık bellek görünümü:** kullanılabilir, önbelleğe alınan (bekleme + değiştirilmiş; Görev Yöneticisi'ndeki *Önbelleğe alınan* ile aynı değer), boş, değiştirilmiş, ayrılan (commit) ve toplam RAM. Her birinin üzerine gelince açıklaması çıkar.
 - **En çok RAM kullanan programlar,** program adına göre gruplanmış.
+- **Programın nereden çalıştığı:** bir programa çift tıklayın (ya da sağ tık → *Ayrıntılar*). Çalışan her kopyası dosya konumu, açıklaması, yayıncısı ve çalışma klasörüyle listelenir. Adı tek başına bir şey anlatmayan programlarda (node, python, java, PowerShell, WebView2, svchost…) komut satırı da görünür; böylece belleği hangi betiğin, uygulamanın ya da Windows hizmetinin kullandığını anlarsınız. *Dosya konumunu aç* dosyayı Gezgin'de gösterir.
 - **Durumu gösteren simge:** normalde düz, uyarı eşiğinin altında turuncu, kritik eşiğin altında kırmızı.
 - **Kritik eşikte bildirim:** en çok bellek kullanan programları listeler, neyi kapatabileceğinizi görürsünüz.
 - **Önbellek temizliği yalnız gerektiğinde:** elle (neden nadiren gerektiğini anlatan bir onayla) ya da kritik eşikte otomatik.
@@ -52,6 +53,8 @@ Ayarlar ve log `%APPDATA%\MemoryPulse\` altında durur (`settings.json`, `memory
 ## Gizlilik
 
 MemoryPulse **hiçbir ağ bağlantısı kurmaz** ve **telemetri toplamaz**. Her şey bilgisayarınızda kalır: ayar dosyası ve yerel bir log.
+
+Ayrıntı penceresindeki yollar ve komut satırları yalnız ekranda gösterilir; loga ve ayar dosyasına yazılmaz. Komut satırında parola, token ya da anahtara benzeyen değerler gizlenir (`****`), ancak bu süzgeç her durumu yakalamayabilir: ayrıntı penceresinin ekran görüntüsünü paylaşmadan önce kontrol edin.
 
 ## Nasıl çalışır
 

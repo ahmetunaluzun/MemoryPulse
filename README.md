@@ -18,6 +18,7 @@ MemoryPulse does the opposite: it teaches you to read the numbers, and only step
 
 - **Live memory view:** available, cached (standby + modified, the same value as *Cached* in Task Manager), free, modified, commit and total RAM, with a tooltip explaining each one.
 - **Programs using the most RAM,** grouped by program name.
+- **Where each program runs from:** double-click a program (or right-click → *Details*) to see every running copy with its file location, description, publisher and working folder. For programs whose name says little on its own (node, python, java, PowerShell, WebView2, svchost…) it also shows the command line, so you can tell which script, app or Windows service is using the memory. *Open file location* jumps to it in Explorer.
 - **Tray icon that shows the state:** normal, amber below the warning threshold, red below the critical threshold.
 - **Notification at the critical threshold** listing the top programs, so you know what to close.
 - **Cache clearing only when you need it:** manually (with an explanation of why it is rarely needed) or automatically at the critical threshold.
@@ -52,6 +53,8 @@ Settings and the log are stored in `%APPDATA%\MemoryPulse\` (`settings.json`, `m
 ## Privacy
 
 MemoryPulse makes **no network connections** and collects **no telemetry**. Everything stays on your PC: the settings file and a local log.
+
+The details window shows paths and command lines only on screen; they are never written to the log or settings. Values that look like passwords, tokens or keys in a command line are hidden (`****`), but this is a best-effort filter: check before sharing a screenshot of the details window.
 
 ## How it works
 

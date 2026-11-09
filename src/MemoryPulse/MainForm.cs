@@ -135,8 +135,32 @@ namespace MemoryPulse
             _list.Columns.Add(L.T("list.count"), w, HorizontalAlignment.Right);
             _list.Columns.Add(L.T("list.ram"), Math.Max(w, 100), HorizontalAlignment.Right);
             _list.Resize += (s, e) => FitColumns();
+            _list.DoubleClick += (s, e) => OpenDetails(SelectedProgram);
+            _list.KeyDown += (s, e) => { if (e.KeyCode == Keys.Enter) OpenDetails(SelectedProgram); };
+            var menu = new ContextMenuStrip();
+            string menuTarget = null;
+            menu.Items.Add(L.T("details.menu"), null, (s, e) => OpenDetails(menuTarget));
+            menu.Items.Add(L.T("details.openFolder"), null, (s, e) => OpenProgramFolder(menuTarget));
+            menu.Opening += (s, e) => { menuTarget = SelectedProgram; e.Cancel = menuTarget == null; };
+            _list.ContextMenuStrip = menu;
+            _tips.SetToolTip(_list, L.T("list.hint"));
             g.Controls.Add(_list);
             return g;
+        }
+
+        private string SelectedProgram => _list.SelectedItems.Count > 0 ? _list.SelectedItems[0].Tag as string : null;
+
+        private void OpenDetails(string name)
+        {
+            if (name == null) return;
+            using (var f = new ProcessDetailsForm(name)) f.ShowDialog(this);
+        }
+
+        private static void OpenProgramFolder(string name)
+        {
+            if (name == null) return;
+            var path = ProcessDetails.Read(name).Find(i => i.Path != null)?.Path;
+            if (path != null && System.IO.File.Exists(path)) Process.Start("explorer.exe", $"/select,\"{path}\"");
         }
 
         private void FitColumns()
@@ -209,14 +233,16 @@ namespace MemoryPulse
             _legend["free"].Text = L.T("legend.free", L.Gb(MemorySnapshot.Gb(s.Free)));
             _bar.Invalidate();
 
+            string keep = SelectedProgram;
             _list.BeginUpdate();
             _list.Items.Clear();
             foreach (var p in MemoryInfo.TopProcesses(25))
             {
-                var item = new ListViewItem(p.Name);
+                var item = new ListViewItem(p.Name) { Tag = p.Name };
                 item.SubItems.Add(p.Count.ToString(L.Culture));
                 item.SubItems.Add(MemorySnapshot.Gb(p.WorkingSet).ToString("0.00", L.Culture) + " GB");
                 _list.Items.Add(item);
+                if (string.Equals(p.Name, keep, StringComparison.OrdinalIgnoreCase)) item.Selected = true;
             }
             _list.EndUpdate();
             FitColumns();
