@@ -114,5 +114,8 @@
 
   "app.alreadyRunning": "MemoryPulse zaten çalışıyor. Penceresini açmak için bildirim alanındaki ikona tıklayın.",
   "error.unexpected": "Beklenmeyen bir hata oluştu: {0}\n\nAyrıntı logda.",
-  "update.check": "Güncellemeleri kontrol et"
+  "update.check": "Güncellemeleri kontrol et",
+  "update.latest": "En güncel sürümü kullanıyorsunuz ({0}).",
+  "update.available": "Yeni sürüm çıktı: MemoryPulse {0}\nŞu an {1} kullanıyorsunuz.\n\nİndirme sayfası açılsın mı?",
+  "update.failed": "Güncellemeler kontrol edilemedi. İnternet bağlantınızı kontrol edip tekrar deneyin.\n\nAyrıntı: {0}"
 }

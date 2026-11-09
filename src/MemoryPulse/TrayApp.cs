@@ -1,7 +1,9 @@
 using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace MemoryPulse
@@ -55,7 +57,7 @@ namespace MemoryPulse
             open.Font = new Font(open.Font, FontStyle.Bold);
             m.Items.Add(L.T("menu.clean"), null, (s, e) => CleanWithConfirm(null));
             m.Items.Add(L.T("menu.taskmgr"), null, (s, e) => Program.OpenTaskManager());
-            m.Items.Add(L.T("update.check"), null, (s, e) => System.Diagnostics.Process.Start(Program.ReleasesUrl));
+            m.Items.Add(L.T("update.check"), null, async (s, e) => await CheckForUpdatesAsync(null));
             m.Items.Add(new ToolStripSeparator());
             m.Items.Add(L.T("menu.exit"), null, (s, e) => ExitApp());
             _tray.ContextMenuStrip = m;
@@ -154,6 +156,42 @@ namespace MemoryPulse
                     L.T("clean.done", L.Gb(MemorySnapshot.Gb(before.Standby)), L.Gb(MemorySnapshot.Gb(after.Available))), ToolTipIcon.Info);
             else if (r == ActionResult.Failed)
                 MessageBox.Show(owner, L.T("clean.failed"), L.T("clean.title"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        }
+
+        private bool _checkingUpdates;
+
+        /// <summary>
+        /// Asks GitHub for the latest version in the background and shows the answer. Runs only when the
+        /// user clicks; the browser opens only if a newer version exists and the user asks for it.
+        /// </summary>
+        public async Task CheckForUpdatesAsync(IWin32Window owner)
+        {
+            if (_checkingUpdates) return;
+            _checkingUpdates = true;
+            try
+            {
+                var found = await UpdateCheck.FindNewerAsync(); // resumes on the UI thread
+                Log.Write("INFO", found == null ? $"Update check: {Program.Version} is the latest"
+                                                : $"Update check: {found.Version} is available ({found.Url})");
+                if (found == null)
+                    MessageBox.Show(owner, L.T("update.latest", Program.Version), L.T("update.check"),
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                else if (MessageBox.Show(owner, L.T("update.available", found.Version, Program.Version), L.T("update.check"),
+                             MessageBoxButtons.YesNo, MessageBoxIcon.Information) == DialogResult.Yes)
+                    Process.Start(found.Url);
+            }
+            catch (Exception ex) when (ex is System.Net.WebException || ex is System.IO.IOException || ex is System.IO.InvalidDataException
+                                       || ex is System.Net.ProtocolViolationException || ex is FormatException
+                                       || ex is ArgumentException || ex is OverflowException || ex is NotSupportedException)
+            {
+                Log.Write("WARN", "Update check failed: " + ex.Message);
+                MessageBox.Show(owner, L.T("update.failed", ex.Message), L.T("update.check"),
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+            finally
+            {
+                _checkingUpdates = false;
+            }
         }
 
         public void ShowWindow()

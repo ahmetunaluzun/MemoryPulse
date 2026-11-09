@@ -23,7 +23,7 @@ MemoryPulse does the opposite: it teaches you to read the numbers, and only step
 - **Notification at the critical threshold** listing the top programs, so you know what to close.
 - **Cache clearing only when you need it:** manually (with an explanation of why it is rarely needed) or automatically at the critical threshold.
 - **Start with Windows** option.
-- **Check for updates:** a link in the window and the tray menu opens the releases page in your browser. To get an e-mail when a new version is out, choose *Watch → Custom → Releases* on the [GitHub page](https://github.com/ahmetunaluzun/MemoryPulse).
+- **Check for updates:** click the link in the window or the tray menu and MemoryPulse asks GitHub for the latest version number in the background, then tells you whether you are up to date. The download page opens only if a newer version exists and you choose to open it. To get an e-mail when a new version is out, choose *Watch → Custom → Releases* on the [GitHub page](https://github.com/ahmetunaluzun/MemoryPulse).
 - **English and Turkish.** Follows the Windows language by default; can be changed in settings.
 - **Light:** about 26 MB of private memory while sitting in the tray.
 
@@ -53,7 +53,7 @@ Settings and the log are stored in `%APPDATA%\MemoryPulse\` (`settings.json`, `m
 
 ## Privacy
 
-MemoryPulse makes **no network connections** and collects **no telemetry**. Everything stays on your PC: the settings file and a local log. *Check for updates* only opens the releases page in your browser when you click it; MemoryPulse itself does not connect anywhere.
+MemoryPulse collects **no telemetry** and never connects anywhere on its own. Its only network connection is *Check for updates*, and only when you click it: it asks GitHub (`api.github.com`) for the number of the latest release. Nothing about your PC or its memory is sent; as with any web request, GitHub sees the request's IP address. Everything else stays on your PC: the settings file and a local log.
 
 The details window shows paths and command lines only on screen; they are never written to the log or settings. Values that look like passwords, tokens or keys in a command line are hidden (`****`), but this is a best-effort filter: check before sharing a screenshot of the details window.
 

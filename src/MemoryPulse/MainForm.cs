@@ -194,14 +194,20 @@ namespace MemoryPulse
             f.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
             f.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
             _status = new Label { AutoSize = true, ForeColor = Palette.Muted, Anchor = AnchorStyles.Left };
-            // Two links: the project page, and the releases page to look for a newer version. MemoryPulse itself
-            // never connects anywhere; the browser opens the page only when the user clicks.
+            // Two links: the project page, and a check for a newer version. The check asks GitHub in the
+            // background only when clicked; MemoryPulse makes no other network connection.
             string github = "GitHub", updates = L.T("update.check");
             var about = new LinkLabel { Text = $"MemoryPulse {Program.Version} · {github} · {updates}", AutoSize = true, Anchor = AnchorStyles.Right };
             about.Links.Clear();
             about.Links.Add(about.Text.IndexOf(github, StringComparison.Ordinal), github.Length, Program.RepoUrl);
-            about.Links.Add(about.Text.LastIndexOf(updates, StringComparison.Ordinal), updates.Length, Program.ReleasesUrl);
-            about.LinkClicked += (s, e) => Process.Start((string)e.Link.LinkData);
+            about.Links.Add(about.Text.LastIndexOf(updates, StringComparison.Ordinal), updates.Length, null);
+            about.LinkClicked += async (s, e) =>
+            {
+                if (e.Link.LinkData is string url) { Process.Start(url); return; }
+                UseWaitCursor = true;
+                try { await _app.CheckForUpdatesAsync(this); }
+                finally { UseWaitCursor = false; }
+            };
             f.Controls.Add(_status, 0, 0);
             f.Controls.Add(about, 1, 0);
             return f;

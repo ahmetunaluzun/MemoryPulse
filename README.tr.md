@@ -23,7 +23,7 @@ MemoryPulse bunun tersini yapar: rakamları okumayı öğretir ve yalnız gerçe
 - **Kritik eşikte bildirim:** en çok bellek kullanan programları listeler, neyi kapatabileceğinizi görürsünüz.
 - **Önbellek temizliği yalnız gerektiğinde:** elle (neden nadiren gerektiğini anlatan bir onayla) ya da kritik eşikte otomatik.
 - **Windows ile başlat** seçeneği.
-- **Güncellemeleri kontrol et:** penceredeki ve tepsi menüsündeki bağlantı sürümler sayfasını tarayıcıda açar. Yeni sürüm çıkınca e-posta almak için [GitHub sayfasında](https://github.com/ahmetunaluzun/MemoryPulse) *Watch → Custom → Releases* seçin.
+- **Güncellemeleri kontrol et:** penceredeki veya tepsi menüsündeki bağlantıya tıklayınca MemoryPulse arka planda GitHub'dan en son sürümün numarasını sorar ve güncel olup olmadığınızı söyler. İndirme sayfası yalnız yeni sürüm varsa ve siz isterseniz açılır. Yeni sürüm çıkınca e-posta almak için [GitHub sayfasında](https://github.com/ahmetunaluzun/MemoryPulse) *Watch → Custom → Releases* seçin.
 - **Türkçe ve İngilizce.** Varsayılan olarak Windows diline göre açılır, ayarlardan değiştirilebilir.
 - **Hafif:** bildirim alanında dururken yaklaşık 26 MB özel bellek.
 
@@ -53,7 +53,7 @@ Ayarlar ve log `%APPDATA%\MemoryPulse\` altında durur (`settings.json`, `memory
 
 ## Gizlilik
 
-MemoryPulse **hiçbir ağ bağlantısı kurmaz** ve **telemetri toplamaz**. Her şey bilgisayarınızda kalır: ayar dosyası ve yerel bir log. *Güncellemeleri kontrol et* yalnız siz tıklayınca sürümler sayfasını tarayıcınızda açar; MemoryPulse kendisi hiçbir yere bağlanmaz.
+MemoryPulse **telemetri toplamaz** ve kendiliğinden hiçbir yere bağlanmaz. Tek ağ bağlantısı *Güncellemeleri kontrol et*'tir ve yalnız siz tıklayınca kurulur: GitHub'a (`api.github.com`) en son sürümün numarasını sorar. Bilgisayarınız veya belleğiniz hakkında hiçbir bilgi gönderilmez; GitHub, her web isteğinde olduğu gibi isteğin IP adresini görür. Geri kalan her şey bilgisayarınızda kalır: ayar dosyası ve yerel bir log.
 
 Ayrıntı penceresindeki yollar ve komut satırları yalnız ekranda gösterilir; loga ve ayar dosyasına yazılmaz. Komut satırında parola, token ya da anahtara benzeyen değerler gizlenir (`****`), ancak bu süzgeç her durumu yakalamayabilir: ayrıntı penceresinin ekran görüntüsünü paylaşmadan önce kontrol edin.
 

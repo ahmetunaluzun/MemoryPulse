@@ -2,6 +2,11 @@
 
 All notable changes to MemoryPulse are listed here. Versions follow [Semantic Versioning](https://semver.org/).
 
+## [1.4.0] - 2026-11-09
+
+- *Check for updates* now checks in the background instead of opening the browser: it asks GitHub for the latest version number and tells you whether you are up to date. If a newer version exists, it offers to open the download page.
+- This request is made only when you click; MemoryPulse still never connects anywhere on its own.
+
 ## [1.3.0] - 2026-11-09
 
 - Removed the automatic new version check added in 1.2.0. MemoryPulse again makes no network connections at all.

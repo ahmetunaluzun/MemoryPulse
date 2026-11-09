@@ -114,5 +114,8 @@
 
   "app.alreadyRunning": "MemoryPulse is already running. Click its icon in the notification area to open the window.",
   "error.unexpected": "An unexpected error occurred: {0}\n\nDetails are in the log.",
-  "update.check": "Check for updates"
+  "update.check": "Check for updates",
+  "update.latest": "You are using the latest version ({0}).",
+  "update.available": "A new version is out: MemoryPulse {0}\nYou are using {1}.\n\nOpen the download page?",
+  "update.failed": "Could not check for updates. Check your internet connection and try again.\n\nDetails: {0}"
 }
