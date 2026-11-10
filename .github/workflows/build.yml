@@ -33,6 +33,16 @@ jobs:
             src/MemoryPulse/bin/Release/net48/MemoryPulse.exe
             MemoryPulse.exe.sha256
 
+      # Store package (unsigned; the Store signs it). Uploaded to Partner Center by hand, not to the release.
+      - name: Store package (MSIX)
+        shell: pwsh
+        run: tools/make-msix.ps1
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: MemoryPulse-msix
+          path: artifacts/msix/*.msix
+
       - name: Release
         if: startsWith(github.ref, 'refs/tags/v')
         shell: pwsh

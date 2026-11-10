@@ -53,17 +53,20 @@ namespace MemoryPulse
     }
 
     /// <summary>
-    /// "Start with Windows" = a per-user scheduled task that runs at logon with the highest available
-    /// rights, so automatic standby cleaning works without a UAC prompt every time.
+    /// "Start with Windows". Full edition: a per-user scheduled task that runs at logon with the highest
+    /// available rights, so automatic standby cleaning works without a UAC prompt every time.
+    /// Store edition: the package's startup task (see <see cref="StoreStartup"/>).
     /// </summary>
     internal static class Startup
     {
         private const string TaskName = "MemoryPulse";
 
-        public static bool IsEnabled() => Schtasks($"/Query /TN \"{TaskName}\"") == 0;
+        public static bool IsEnabled() =>
+            Edition.IsStore ? StoreStartup.IsEnabled() : Schtasks($"/Query /TN \"{TaskName}\"") == 0;
 
         public static ActionResult Set(bool enable)
         {
+            if (Edition.IsStore) return StoreStartup.Set(enable);
             string user = WindowsIdentity.GetCurrent().Name;
             if (Native.IsElevated) return Apply(enable, user) ? ActionResult.Ok : ActionResult.Failed;
             return Elevated.RunSelfElevated($"{Elevated.StartupArg} {(enable ? "on" : "off")} \"{user}\"");

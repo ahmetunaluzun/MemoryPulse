@@ -36,13 +36,15 @@ namespace MemoryPulse
             t.Controls.Add(_language, 1, 2);
             t.SetColumnSpan(_language, 3);
 
-            _autoClean = Check(t, "settings.autoClean", "tip.autoClean", s.AutoClean, 3);
-            _startup = Check(t, "settings.startup", "tip.startup", Startup.IsEnabled(), 4);
+            // Store edition: no cache clearing, so no automatic clearing option.
+            int row = 3;
+            if (Edition.CanClean) _autoClean = Check(t, "settings.autoClean", "tip.autoClean", s.AutoClean, row++);
+            _startup = Check(t, "settings.startup", Edition.IsStore ? "tip.startupStore" : "tip.startup", Startup.IsEnabled(), row);
             t.SetColumnSpan(_startup, 3);
 
             var save = new Button { Text = L.T("settings.save"), AutoSize = true, Padding = new Padding(14, 2, 14, 2), Anchor = AnchorStyles.Right };
             save.Click += (o, e) => SaveSettings();
-            t.Controls.Add(save, 3, 4);
+            t.Controls.Add(save, 3, row);
             g.Controls.Add(t);
             return g;
         }
@@ -85,7 +87,7 @@ namespace MemoryPulse
             s.WarningGb = (int)_warning.Value;
             s.IntervalSec = (int)_interval.Value;
             s.CooldownMin = (int)_cooldown.Value;
-            s.AutoClean = _autoClean.Checked;
+            if (_autoClean != null) s.AutoClean = _autoClean.Checked;
             s.Language = lang;
             try { s.Save(); }
             catch (Exception ex) when (ex is System.IO.IOException || ex is UnauthorizedAccessException)
@@ -103,6 +105,8 @@ namespace MemoryPulse
                     _startup.Checked = Startup.IsEnabled();
                     if (r == ActionResult.Failed)
                         MessageBox.Show(this, L.T("settings.startupFailed"), L.T("settings.title"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    else if (Edition.IsStore && StoreStartup.DisabledByUser())
+                        MessageBox.Show(this, L.T("settings.startupDisabledByUser"), L.T("settings.title"), MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }
 

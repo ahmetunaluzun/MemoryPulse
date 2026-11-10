@@ -1,0 +1,6 @@
+{
+  "_comment": "Partner Center > MemoryPulse > Product management > Product identity. Copy the three values from there; until then these are local test values.",
+  "Name": "MemoryPulse.LocalTest",
+  "Publisher": "CN=MemoryPulse Local Test",
+  "PublisherDisplayName": "Ahmet Ünal Uzun"
+}

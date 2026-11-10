@@ -22,7 +22,7 @@ namespace MemoryPulse
             if (args.Length >= 3 && args[0] == Elevated.StartupArg)
                 return Startup.Apply(args[1] == "on", args[2]) ? 0 : 1;
 
-            bool startHidden = Array.IndexOf(args, "--tray") >= 0;
+            bool startHidden = Array.IndexOf(args, "--tray") >= 0 || Edition.StartedAtSignIn();
             Mutex mutex;
             bool first;
             try { mutex = new Mutex(true, @"Local\MemoryPulse.Instance", out first); }

@@ -37,6 +37,10 @@ MemoryPulse does the opposite: it teaches you to read the numbers, and only step
 
 **Requirements:** Windows 10 or 11, .NET Framework 4.8 (built in).
 
+### Microsoft Store edition
+
+MemoryPulse is also being prepared for the Microsoft Store. The Store does not accept apps that ask for administrator rights, so the Store edition **does not clear the cache**: it shows the same memory figures, program list, details and notifications, and *Start with Windows* uses the Store's own startup setting (you can also turn it off in Task Manager → Startup apps). It has no *Check for updates*, because the Store updates it, and it makes no network connections at all. Cache clearing is in this GitHub edition. Both are built from the same code; the exe detects which one it is.
+
 ## Settings
 
 | Setting | Default | What it does |
@@ -53,7 +57,7 @@ Settings and the log are stored in `%APPDATA%\MemoryPulse\` (`settings.json`, `m
 
 ## Privacy
 
-MemoryPulse collects **no telemetry** and never connects anywhere on its own. Its only network connection is *Check for updates*, and only when you click it: it asks GitHub (`api.github.com`) for the number of the latest release. Nothing about your PC or its memory is sent; as with any web request, GitHub sees the request's IP address. Everything else stays on your PC: the settings file and a local log.
+MemoryPulse collects **no telemetry** and never connects anywhere on its own. Its only network connection is *Check for updates*, and only when you click it: it asks GitHub (`api.github.com`) for the number of the latest release. Nothing about your PC or its memory is sent; as with any web request, GitHub sees the request's IP address. Everything else stays on your PC: the settings file and a local log. The Microsoft Store edition makes no network connections at all. Full policy: [PRIVACY.md](PRIVACY.md).
 
 The details window shows paths and command lines only on screen; they are never written to the log or settings. Values that look like passwords, tokens or keys in a command line are hidden (`****`), but this is a best-effort filter: check before sharing a screenshot of the details window.
 
@@ -81,6 +85,8 @@ dotnet build src\MemoryPulse\MemoryPulse.csproj -c Release
 ```
 
 The exe is created at `src\MemoryPulse\bin\Release\net48\MemoryPulse.exe`.
+
+Store package (needs the Windows SDK): `powershell -File tools\make-msix.ps1` writes `artifacts\msix\MemoryPulse_<version>_neutral.msix`. Add `-Register` to install it on your own PC for testing (Developer Mode). The package identity comes from `packaging\store-identity.json`.
 
 ## Adding a language
 

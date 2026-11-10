@@ -111,6 +111,8 @@
   "tip.cooldown": "İki bildirim arasında en az ne kadar beklenecek.",
   "tip.autoClean": "Kritik eşikte önbelleği temizler. Kullanılabilir değeri pek artırmaz; asıl yararlı olan bildirimdeki program listesidir. Yönetici izni gerekir: \"Windows ile başlat\" açıkken izinle çalışır.",
   "tip.startup": "Oturum açılınca MemoryPulse bildirim alanında başlar. Bir kez yönetici izni ister; böylece otomatik temizlik her seferinde izin sormadan çalışır.",
+  "settings.startupDisabledByUser": "\"Windows ile başlat\" Görev Yöneticisi'nden kapatılmış; yalnız oradan yeniden açılabilir: Görev Yöneticisi > Başlangıç uygulamaları > MemoryPulse > Etkinleştir.",
+  "tip.startupStore": "Oturum açtığınızda MemoryPulse bildirim alanında başlar. Görev Yöneticisi > Başlangıç uygulamaları'ndan da kapatabilirsiniz.",
 
   "app.alreadyRunning": "MemoryPulse zaten çalışıyor. Penceresini açmak için bildirim alanındaki ikona tıklayın.",
   "error.unexpected": "Beklenmeyen bir hata oluştu: {0}\n\nAyrıntı logda.",

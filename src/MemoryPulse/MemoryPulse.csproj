@@ -6,7 +6,7 @@
     <LangVersion>latest</LangVersion>
     <AssemblyName>MemoryPulse</AssemblyName>
     <RootNamespace>MemoryPulse</RootNamespace>
-    <Version>1.4.0</Version>
+    <Version>1.5.0</Version>
     <Product>MemoryPulse</Product>
     <Description>See what is really using your RAM, and learn why cached memory is not wasted.</Description>
     <Copyright>Copyright (c) 2026 Ahmet Ünal Uzun</Copyright>
@@ -21,5 +21,8 @@
   <ItemGroup>
     <Reference Include="System.Runtime.Serialization" />
     <EmbeddedResource Include="Lang\*.json" LogicalName="MemoryPulse.Lang.%(Filename).json" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Windows.SDK.Contracts" Version="10.0.28000.2957" />
   </ItemGroup>
 </Project>

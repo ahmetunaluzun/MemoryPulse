@@ -2,6 +2,11 @@
 
 All notable changes to MemoryPulse are listed here. Versions follow [Semantic Versioning](https://semver.org/).
 
+## [1.5.0] - 2026-11-10
+
+- Microsoft Store edition. The same exe, started from the Store package, works without administrator rights, as the Store requires: it does not clear the cache, has no *Check for updates* (the Store updates it) and makes no network connections. *Start with Windows* uses the Store's startup setting, which you can also manage in Task Manager → Startup apps. The GitHub edition is unchanged.
+- `tools/make-msix.ps1` builds the Store package; privacy policy in `PRIVACY.md`.
+
 ## [1.4.0] - 2026-11-09
 
 - *Check for updates* now checks in the background instead of opening the browser: it asks GitHub for the latest version number and tells you whether you are up to date. If a newer version exists, it offers to open the download page.

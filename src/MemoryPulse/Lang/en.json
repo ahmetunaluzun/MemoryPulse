@@ -111,6 +111,8 @@
   "tip.cooldown": "Minimum time between two notifications.",
   "tip.autoClean": "Clears the cache at the critical threshold. It barely raises available memory; the program list in the notification is what really helps. Needs administrator rights: works when \"Start with Windows\" is on.",
   "tip.startup": "MemoryPulse starts in the notification area when you sign in. Asks for administrator permission once, so automatic cleaning works without a prompt every time.",
+  "settings.startupDisabledByUser": "\"Start with Windows\" was turned off in Task Manager, so only you can turn it back on there: Task Manager > Startup apps > MemoryPulse > Enable.",
+  "tip.startupStore": "MemoryPulse starts in the notification area when you sign in. You can also turn this off in Task Manager > Startup apps.",
 
   "app.alreadyRunning": "MemoryPulse is already running. Click its icon in the notification area to open the window.",
   "error.unexpected": "An unexpected error occurred: {0}\n\nDetails are in the log.",

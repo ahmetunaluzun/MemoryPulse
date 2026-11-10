@@ -181,7 +181,7 @@ namespace MemoryPulse
                 if (tip != null) _tips.SetToolTip(b, L.Tip(tip));
                 f.Controls.Add(b);
             }
-            Add("btn.clean", () => { _app.CleanWithConfirm(this); RefreshNow(); }, "tip.clean");
+            if (Edition.CanClean) Add("btn.clean", () => { _app.CleanWithConfirm(this); RefreshNow(); }, "tip.clean");
             Add("btn.refresh", RefreshNow);
             Add("btn.taskmgr", Program.OpenTaskManager);
             Add("btn.log", () => { if (System.IO.File.Exists(AppPaths.LogFile)) Process.Start("notepad.exe", $"\"{AppPaths.LogFile}\""); });
@@ -196,11 +196,14 @@ namespace MemoryPulse
             _status = new Label { AutoSize = true, ForeColor = Palette.Muted, Anchor = AnchorStyles.Left };
             // Two links: the project page, and a check for a newer version. The check asks GitHub in the
             // background only when clicked; MemoryPulse makes no other network connection.
+            // The Store edition has no update check: the Store updates it.
             string github = "GitHub", updates = L.T("update.check");
-            var about = new LinkLabel { Text = $"MemoryPulse {Program.Version} · {github} · {updates}", AutoSize = true, Anchor = AnchorStyles.Right };
+            string text = $"MemoryPulse {Program.Version} · {github}" + (Edition.CanCheckUpdates ? $" · {updates}" : "");
+            var about = new LinkLabel { Text = text, AutoSize = true, Anchor = AnchorStyles.Right };
             about.Links.Clear();
             about.Links.Add(about.Text.IndexOf(github, StringComparison.Ordinal), github.Length, Program.RepoUrl);
-            about.Links.Add(about.Text.LastIndexOf(updates, StringComparison.Ordinal), updates.Length, null);
+            if (Edition.CanCheckUpdates)
+                about.Links.Add(about.Text.LastIndexOf(updates, StringComparison.Ordinal), updates.Length, null);
             about.LinkClicked += async (s, e) =>
             {
                 if (e.Link.LinkData is string url) { Process.Start(url); return; }
@@ -259,7 +262,7 @@ namespace MemoryPulse
             _list.EndUpdate();
             FitColumns();
             _status.Text = L.T("status.updated", DateTime.Now.ToString("HH:mm:ss", L.Culture)) +
-                           (Native.IsElevated ? "  ·  " + L.T("status.admin") : "");
+                           (Native.IsElevated && Edition.CanClean ? "  ·  " + L.T("status.admin") : "");
         }
 
         private void PaintBar(object sender, PaintEventArgs e)

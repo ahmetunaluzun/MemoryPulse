@@ -33,7 +33,7 @@ namespace MemoryPulse
             _timer.Interval = Settings.IntervalSec * 1000;
             _timer.Start();
 
-            Log.Write("INFO", $"Started {Program.Version}. Elevated: {Native.IsElevated}. Critical {Settings.CriticalGb} GB, " +
+            Log.Write("INFO", $"Started {Program.Version} ({Edition.Name} edition). Elevated: {Native.IsElevated}. Critical {Settings.CriticalGb} GB, " +
                               $"warning {Settings.WarningGb} GB, interval {Settings.IntervalSec} s");
             Check();
             _tray.Visible = true;
@@ -55,9 +55,9 @@ namespace MemoryPulse
             var m = new ContextMenuStrip();
             var open = m.Items.Add(L.T("menu.open"), null, (s, e) => ShowWindow());
             open.Font = new Font(open.Font, FontStyle.Bold);
-            m.Items.Add(L.T("menu.clean"), null, (s, e) => CleanWithConfirm(null));
+            if (Edition.CanClean) m.Items.Add(L.T("menu.clean"), null, (s, e) => CleanWithConfirm(null));
             m.Items.Add(L.T("menu.taskmgr"), null, (s, e) => Program.OpenTaskManager());
-            m.Items.Add(L.T("update.check"), null, async (s, e) => await CheckForUpdatesAsync(null));
+            if (Edition.CanCheckUpdates) m.Items.Add(L.T("update.check"), null, async (s, e) => await CheckForUpdatesAsync(null));
             m.Items.Add(new ToolStripSeparator());
             m.Items.Add(L.T("menu.exit"), null, (s, e) => ExitApp());
             _tray.ContextMenuStrip = m;
@@ -117,7 +117,9 @@ namespace MemoryPulse
         {
             string top = TopList();
             string body;
-            if (Settings.AutoClean && Native.IsElevated)
+            if (!Edition.CanClean)
+                body = L.T("notify.autoOff");
+            else if (Settings.AutoClean && Native.IsElevated)
             {
                 var r = Elevated.PurgeStandby();
                 body = r == ActionResult.Ok ? L.T("notify.cleaned", L.Gb(MemorySnapshot.Gb(before.Standby)))

@@ -37,6 +37,10 @@ MemoryPulse bunun tersini yapar: rakamları okumayı öğretir ve yalnız gerçe
 
 **Gereksinimler:** Windows 10 veya 11, .NET Framework 4.8 (Windows'ta hazır).
 
+### Microsoft Store sürümü
+
+MemoryPulse Microsoft Store için de hazırlanıyor. Store yönetici izni isteyen uygulamaları kabul etmediği için Store sürümü **önbelleği temizlemez**. Aynı bellek değerlerini, program listesini, ayrıntıları ve bildirimleri gösterir. *Windows ile başlat* Store'un kendi başlangıç ayarını kullanır; Görev Yöneticisi → Başlangıç uygulamaları'ndan da kapatılabilir. Store güncellediği için *Güncellemeleri kontrol et* yoktur ve hiçbir ağ bağlantısı kurmaz. Önbellek temizliği bu GitHub sürümündedir. İkisi aynı koddan derlenir; exe hangisi olduğunu kendisi anlar.
+
 ## Ayarlar
 
 | Ayar | Varsayılan | Ne yapar |
@@ -53,7 +57,7 @@ Ayarlar ve log `%APPDATA%\MemoryPulse\` altında durur (`settings.json`, `memory
 
 ## Gizlilik
 
-MemoryPulse **telemetri toplamaz** ve kendiliğinden hiçbir yere bağlanmaz. Tek ağ bağlantısı *Güncellemeleri kontrol et*'tir ve yalnız siz tıklayınca kurulur: GitHub'a (`api.github.com`) en son sürümün numarasını sorar. Bilgisayarınız veya belleğiniz hakkında hiçbir bilgi gönderilmez; GitHub, her web isteğinde olduğu gibi isteğin IP adresini görür. Geri kalan her şey bilgisayarınızda kalır: ayar dosyası ve yerel bir log.
+MemoryPulse **telemetri toplamaz** ve kendiliğinden hiçbir yere bağlanmaz. Tek ağ bağlantısı *Güncellemeleri kontrol et*'tir ve yalnız siz tıklayınca kurulur: GitHub'a (`api.github.com`) en son sürümün numarasını sorar. Bilgisayarınız veya belleğiniz hakkında hiçbir bilgi gönderilmez; GitHub, her web isteğinde olduğu gibi isteğin IP adresini görür. Geri kalan her şey bilgisayarınızda kalır: ayar dosyası ve yerel bir log. Microsoft Store sürümü hiçbir ağ bağlantısı kurmaz. Politikanın tamamı: [PRIVACY.md](PRIVACY.md).
 
 Ayrıntı penceresindeki yollar ve komut satırları yalnız ekranda gösterilir; loga ve ayar dosyasına yazılmaz. Komut satırında parola, token ya da anahtara benzeyen değerler gizlenir (`****`), ancak bu süzgeç her durumu yakalamayabilir: ayrıntı penceresinin ekran görüntüsünü paylaşmadan önce kontrol edin.
 
@@ -81,6 +85,8 @@ dotnet build src\MemoryPulse\MemoryPulse.csproj -c Release
 ```
 
 Exe `src\MemoryPulse\bin\Release\net48\MemoryPulse.exe` yolunda oluşur.
+
+Store paketi (Windows SDK gerekir): `powershell -File tools\make-msix.ps1` komutu `artifacts\msix\MemoryPulse_<sürüm>_neutral.msix` dosyasını üretir. Kendi bilgisayarınızda denemek için `-Register` ekleyin (Geliştirici Modu). Paket kimliği `packaging\store-identity.json` dosyasından gelir.
 
 ## Dil ekleme
 
