@@ -28,7 +28,7 @@ namespace MemoryPulse
             Font = new Font("Segoe UI", 9.75f);
             AutoScaleMode = AutoScaleMode.Dpi;
             StartPosition = FormStartPosition.CenterScreen;
-            ClientSize = new Size(640, 800);
+            ClientSize = new Size(640, 830);
             MinimumSize = new Size(600, 640);
             AutoScroll = true;
             Padding = new Padding(10);
@@ -142,6 +142,7 @@ namespace MemoryPulse
             menu.Items.Add(L.T("details.menu"), null, (s, e) => OpenDetails(menuTarget));
             menu.Items.Add(L.T("details.openFolder"), null, (s, e) => OpenProgramFolder(menuTarget));
             menu.Opening += (s, e) => { menuTarget = SelectedProgram; e.Cancel = menuTarget == null; };
+            AddHistoryMenu(menu, () => menuTarget);
             _list.ContextMenuStrip = menu;
             _tips.SetToolTip(_list, L.T("list.hint"));
             g.Controls.Add(_list);
@@ -183,6 +184,7 @@ namespace MemoryPulse
             }
             if (Edition.CanClean) Add("btn.clean", () => { _app.CleanWithConfirm(this); RefreshNow(); }, "tip.clean");
             Add("btn.refresh", RefreshNow);
+            Add("btn.history", _app.ShowHistory, "tip.historyBtn");
             Add("btn.taskmgr", Program.OpenTaskManager);
             Add("btn.log", () => { if (System.IO.File.Exists(AppPaths.LogFile)) Process.Start("notepad.exe", $"\"{AppPaths.LogFile}\""); });
             return f;

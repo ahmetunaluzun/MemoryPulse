@@ -18,9 +18,11 @@ namespace MemoryPulse
         private readonly TextBox _detail;
         private readonly Label _summary;
         private readonly Button _open;
+        private readonly ProgramHistoryPanel _history;
         private List<ProcessInstance> _items = new List<ProcessInstance>();
 
-        public ProcessDetailsForm(string name)
+        /// <param name="showHistory">Open on the history tab instead of the running instances.</param>
+        public ProcessDetailsForm(string name, bool showHistory = false)
         {
             _name = name;
             _showCmd = ProcessDetails.ShowsCommandLine(name);
@@ -39,10 +41,23 @@ namespace MemoryPulse
             var root = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1 };
             root.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
             root.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-            root.RowStyles.Add(new RowStyle(SizeType.Percent, 55));
-            root.RowStyles.Add(new RowStyle(SizeType.Percent, 45));
+            root.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
             root.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             Controls.Add(root);
+
+            // Two tabs: what is running now, and what the program did in the last 24 hours.
+            var now = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1 };
+            now.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+            now.RowStyles.Add(new RowStyle(SizeType.Percent, 55));
+            now.RowStyles.Add(new RowStyle(SizeType.Percent, 45));
+            _history = new ProgramHistoryPanel(name);
+            var tabs = new TabControl { Dock = DockStyle.Fill, Margin = new Padding(4) };
+            tabs.TabPages.Add(new TabPage(L.T("details.tab.now")) { Padding = new Padding(4), UseVisualStyleBackColor = true });
+            tabs.TabPages.Add(new TabPage(L.T("details.tab.history")) { Padding = new Padding(4), UseVisualStyleBackColor = true });
+            tabs.TabPages[0].Controls.Add(now);
+            tabs.TabPages[1].Controls.Add(_history);
+            tabs.SelectedIndexChanged += (s, e) => { if (tabs.SelectedIndex == 1) _history.LoadOnce(); };
+            root.Controls.Add(tabs, 0, 1);
 
             _summary = new Label { AutoSize = true, Dock = DockStyle.Top, Margin = new Padding(4, 0, 4, 8) };
             root.Controls.Add(_summary, 0, 0);
@@ -55,12 +70,12 @@ namespace MemoryPulse
             _list.Resize += (s, e) => FitColumns();
             _list.SelectedIndexChanged += (s, e) => ShowSelected();
             _list.DoubleClick += (s, e) => OpenLocation();
-            root.Controls.Add(_list, 0, 1);
+            now.Controls.Add(_list, 0, 0);
 
             _detail = new TextBox { Multiline = true, ReadOnly = true, ScrollBars = ScrollBars.Vertical, WordWrap = true,
                                     Dock = DockStyle.Fill, Margin = new Padding(4), BackColor = Palette.Card,
                                     Font = new Font("Consolas", 9.5f) };
-            root.Controls.Add(_detail, 0, 2);
+            now.Controls.Add(_detail, 0, 1);
 
             var buttons = new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = true, FlowDirection = FlowDirection.RightToLeft,
                                                 Margin = new Padding(0, 6, 0, 0) };
@@ -76,9 +91,14 @@ namespace MemoryPulse
             Add("btn.refresh", Reload);
             _open = Add("details.openFolder", OpenLocation);
             CancelButton = close;
-            root.Controls.Add(buttons, 0, 3);
+            root.Controls.Add(buttons, 0, 2);
 
-            Shown += (s, e) => { Reload(); FitColumns(); };
+            Shown += (s, e) =>
+            {
+                Reload();
+                FitColumns();
+                if (showHistory) tabs.SelectedIndex = 1;
+            };
         }
 
         private void FitColumns()

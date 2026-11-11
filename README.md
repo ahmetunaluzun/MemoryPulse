@@ -22,10 +22,12 @@ MemoryPulse does the opposite: it teaches you to read the numbers, and only step
 - **Tray icon that shows the state:** normal, amber below the warning threshold, red below the critical threshold.
 - **Notification at the critical threshold** listing the top programs, so you know what to close.
 - **Cache clearing only when you need it:** manually (with an explanation of why it is rarely needed) or automatically at the critical threshold.
+- **Usage history:** every minute MemoryPulse records available RAM, each program's memory and read/write (I/O), disk and network speed for the whole PC and free disk space, and keeps 7 days. *History* (button in the window or tray menu) shows charts for the last hour, 6 hours, 24 hours, 7 days or any range you pick, a table of which programs used how much and when, and the crashes, hangs, blue screens, unexpected shutdowns and restarts Windows logged in that range. Double-click a program to see its own last 24 hours.
+- **Network usage per program:** right-click a program → *Watch network usage*. Works in the GitHub edition while MemoryPulse runs as administrator (*Start with Windows* starts it that way); network usage for the whole PC is always recorded.
 - **Start with Windows** option.
 - **Check for updates:** click the link in the window or the tray menu and MemoryPulse asks GitHub for the latest version number in the background, then tells you whether you are up to date. The download page opens only if a newer version exists and you choose to open it. To get an e-mail when a new version is out, choose *Watch → Custom → Releases* on the [GitHub page](https://github.com/ahmetunaluzun/MemoryPulse).
 - **English and Turkish.** Follows the Windows language by default; can be changed in settings.
-- **Light:** about 26 MB of private memory while sitting in the tray.
+- **Light:** about 37 MB of private memory, history recording included while sitting in the tray.
 
 ## Download and run
 
@@ -50,14 +52,15 @@ MemoryPulse is also being prepared for the Microsoft Store. The Store does not a
 | Check interval | 60 s | How often memory is measured in the background |
 | Cooldown | 10 min | Minimum time between two notifications |
 | Clear the cache automatically | On | Clears the cache at the critical threshold (needs *Start with Windows*, see below) |
+| Record usage history | On | Records memory, I/O, disk and network every minute and keeps 7 days |
 | Start with Windows | Off | Starts MemoryPulse in the tray when you sign in |
 | Language | Automatic | Windows language, English or Turkish |
 
-Settings and the log are stored in `%APPDATA%\MemoryPulse\` (`settings.json`, `memorypulse.log`).
+Settings, the log and the history are stored in `%APPDATA%\MemoryPulse\` (`settings.json`, `memorypulse.log`, `history\` with one file per day).
 
 ## Privacy
 
-MemoryPulse collects **no telemetry** and never connects anywhere on its own. Its only network connection is *Check for updates*, and only when you click it: it asks GitHub (`api.github.com`) for the number of the latest release. Nothing about your PC or its memory is sent; as with any web request, GitHub sees the request's IP address. Everything else stays on your PC: the settings file and a local log. The Microsoft Store edition makes no network connections at all. Full policy: [PRIVACY.md](PRIVACY.md).
+MemoryPulse collects **no telemetry** and never connects anywhere on its own. Its only network connection is *Check for updates*, and only when you click it: it asks GitHub (`api.github.com`) for the number of the latest release. Nothing about your PC or its memory is sent; as with any web request, GitHub sees the request's IP address. Everything else stays on your PC: the settings file, a local log and the usage history. The Microsoft Store edition makes no network connections at all. Full policy: [PRIVACY.md](PRIVACY.md).
 
 The details window shows paths and command lines only on screen; they are never written to the log or settings. Values that look like passwords, tokens or keys in a command line are hidden (`****`), but this is a best-effort filter: check before sharing a screenshot of the details window.
 

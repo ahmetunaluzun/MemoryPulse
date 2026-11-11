@@ -2,6 +2,13 @@
 
 All notable changes to MemoryPulse are listed here. Versions follow [Semantic Versioning](https://semver.org/).
 
+## [1.6.0] - 2026-11-11
+
+- Usage history. Every minute MemoryPulse records available RAM, each program's memory and read/write (I/O), disk and network speed for the whole PC and free disk space, and keeps 7 days (files older than that are deleted). Turn it off with *Record usage history* in the settings.
+- New *History* window (button in the window and tray menu): charts for the last hour, 6 hours, 24 hours, 7 days or a custom range; a table of programs with average and peak RAM, when the peak was, read/write and network totals; and the crashes, hangs, blue screens, unexpected shutdowns and restarts Windows logged in that range, also marked on the charts.
+- Network usage per program: right-click a program → *Watch network usage*. GitHub edition only, while running as administrator (*Start with Windows* starts it that way).
+- The details window has a *History (24 hours)* tab with that program's memory, read/write totals and its crashes and hangs. Right-click a program → *History* opens it.
+
 ## [1.5.0] - 2026-11-10
 
 - Microsoft Store edition. The same exe, started from the Store package, works without administrator rights, as the Store requires: it does not clear the cache, has no *Check for updates* (the Store updates it) and makes no network connections. *Start with Windows* uses the Store's startup setting, which you can also manage in Task Manager → Startup apps. The GitHub edition is unchanged.

@@ -30,13 +30,17 @@ namespace MemoryPulse
     {
         private static PerformanceCounter[] _counters;
         private static bool _countersFailed;
+        private static readonly object Gate = new object(); // the window and the history recorder both read
 
         public static MemorySnapshot Read()
         {
             var s = new MemorySnapshot();
             Native.GetMemoryStatus(out s.Total, out s.Available, out s.CommitUsed, out s.CommitLimit);
-            if (Native.TryGetMemoryLists(out s.Standby, out s.Free, out s.Modified) || TryReadCounters(s))
-                s.HasDetail = true;
+            lock (Gate)
+            {
+                if (Native.TryGetMemoryLists(out s.Standby, out s.Free, out s.Modified) || TryReadCounters(s))
+                    s.HasDetail = true;
+            }
             return s;
         }
 

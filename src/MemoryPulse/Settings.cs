@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
@@ -23,6 +24,8 @@ namespace MemoryPulse
         [DataMember] public int CooldownMin;    // minimum gap between two automatic actions
         [DataMember] public bool AutoClean;     // purge standby on critical (needs administrator)
         [DataMember] public string Language;
+        [DataMember] public bool HistoryEnabled;             // record usage every minute, keep 7 days
+        [DataMember] public List<string> WatchedNetwork;     // programs whose network use is measured (needs administrator)
 
         public Settings() => SetDefaults();
 
@@ -39,6 +42,8 @@ namespace MemoryPulse
             CooldownMin = 10;
             AutoClean = true;
             Language = "auto";
+            HistoryEnabled = true;
+            WatchedNetwork = new List<string>();
         }
 
         public static Settings Load()
@@ -72,7 +77,8 @@ namespace MemoryPulse
                 File.WriteAllBytes(AppPaths.SettingsFile, ms.ToArray());
             }
             Log.Write("INFO", $"Settings saved: critical {CriticalGb} GB, warning {WarningGb} GB, interval {IntervalSec} s, " +
-                              $"cooldown {CooldownMin} min, auto clean {AutoClean}, language {Language}");
+                              $"cooldown {CooldownMin} min, auto clean {AutoClean}, language {Language}, history {HistoryEnabled}, " +
+                              $"network watch: {(WatchedNetwork.Count == 0 ? "none" : string.Join(" ", WatchedNetwork))}");
         }
 
         private Settings Validated()
@@ -82,6 +88,8 @@ namespace MemoryPulse
             IntervalSec = Clamp(IntervalSec, 5, 3600, 60);
             CooldownMin = Clamp(CooldownMin, 1, 1440, 10);
             if (string.IsNullOrWhiteSpace(Language)) Language = "auto";
+            if (WatchedNetwork == null) WatchedNetwork = new List<string>();
+            WatchedNetwork.RemoveAll(string.IsNullOrWhiteSpace);
             return this;
         }
 

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
@@ -14,7 +15,9 @@ namespace MemoryPulse
         private readonly NotifyIcon _tray = new NotifyIcon();
         private readonly System.Windows.Forms.Timer _timer = new System.Windows.Forms.Timer();
         private readonly SynchronizationContext _ui;
+        private readonly HistoryRecorder _history = new HistoryRecorder();
         private MainForm _form;
+        private HistoryForm _historyForm;
         private string _iconKey = "";
         private DateTime _lastAction = DateTime.MinValue;
 
@@ -36,6 +39,7 @@ namespace MemoryPulse
             Log.Write("INFO", $"Started {Program.Version} ({Edition.Name} edition). Elevated: {Native.IsElevated}. Critical {Settings.CriticalGb} GB, " +
                               $"warning {Settings.WarningGb} GB, interval {Settings.IntervalSec} s");
             Check();
+            _history.Apply(Settings);
             _tray.Visible = true;
 
             var waiter = new Thread(() => { while (showSignal.WaitOne()) _ui.Post(_ => ShowWindow(), null); })
@@ -56,6 +60,7 @@ namespace MemoryPulse
             var open = m.Items.Add(L.T("menu.open"), null, (s, e) => ShowWindow());
             open.Font = new Font(open.Font, FontStyle.Bold);
             if (Edition.CanClean) m.Items.Add(L.T("menu.clean"), null, (s, e) => CleanWithConfirm(null));
+            m.Items.Add(L.T("btn.history"), null, (s, e) => ShowHistory());
             m.Items.Add(L.T("menu.taskmgr"), null, (s, e) => Program.OpenTaskManager());
             if (Edition.CanCheckUpdates) m.Items.Add(L.T("update.check"), null, async (s, e) => await CheckForUpdatesAsync(null));
             m.Items.Add(new ToolStripSeparator());
@@ -69,10 +74,12 @@ namespace MemoryPulse
         {
             _timer.Interval = Settings.IntervalSec * 1000;
             _iconKey = "";
+            _history.Apply(Settings);
             if (languageChanged)
             {
                 L.Use(Settings.Language);
                 BuildMenu();
+                _historyForm?.Close(); // reopened in the new language on demand
                 if (_form != null && !_form.IsDisposed)
                 {
                     var bounds = _form.Bounds;
@@ -210,6 +217,37 @@ namespace MemoryPulse
             Native.SetForegroundWindow(_form.Handle);
         }
 
+        public void ShowHistory()
+        {
+            if (_historyForm == null || _historyForm.IsDisposed)
+            {
+                _historyForm = new HistoryForm(Settings);
+                _historyForm.FormClosed += (s, e) => _ui.Post(_ => ReleaseMemory(), null);
+            }
+            if (_historyForm.WindowState == FormWindowState.Minimized) _historyForm.WindowState = FormWindowState.Normal;
+            _historyForm.Show();
+            _historyForm.Activate();
+        }
+
+        public bool IsNetworkWatched(string program) =>
+            Settings.WatchedNetwork.Exists(n => string.Equals(n, program, StringComparison.OrdinalIgnoreCase));
+
+        /// <summary>Adds or removes a program from the network watch list, saves it and tells the recorder.</summary>
+        public void SetNetworkWatch(string program, bool on)
+        {
+            // A new list each time: the recorder reads the old one on another thread.
+            var list = new List<string>(Settings.WatchedNetwork);
+            list.RemoveAll(n => string.Equals(n, program, StringComparison.OrdinalIgnoreCase));
+            if (on) list.Add(program);
+            Settings.WatchedNetwork = list;
+            try { Settings.Save(); }
+            catch (Exception ex) when (ex is System.IO.IOException || ex is UnauthorizedAccessException)
+            {
+                Log.Write("ERROR", "Network watch list could not be saved: " + ex.Message);
+            }
+            _history.Apply(Settings);
+        }
+
         // The window is the heavy part; once it is closed, give its memory back.
         private static void ReleaseMemory()
         {
@@ -225,6 +263,8 @@ namespace MemoryPulse
             _timer.Stop();
             _tray.Visible = false;
             if (_form != null && !_form.IsDisposed) _form.Close();
+            _historyForm?.Close();
+            _history.Dispose(); // also stops the network trace session
             ExitThread();
         }
 

@@ -22,10 +22,12 @@ MemoryPulse bunun tersini yapar: rakamları okumayı öğretir ve yalnız gerçe
 - **Durumu gösteren simge:** normalde düz, uyarı eşiğinin altında turuncu, kritik eşiğin altında kırmızı.
 - **Kritik eşikte bildirim:** en çok bellek kullanan programları listeler, neyi kapatabileceğinizi görürsünüz.
 - **Önbellek temizliği yalnız gerektiğinde:** elle (neden nadiren gerektiğini anlatan bir onayla) ya da kritik eşikte otomatik.
+- **Kullanım geçmişi:** MemoryPulse dakikada bir kullanılabilir RAM'i, her programın belleğini ve okuma/yazmasını (G/Ç), bilgisayarın tamamındaki disk ve ağ hızını ve disklerdeki boş alanı kaydeder, 7 gün saklar. *Geçmiş* (penceredeki düğme ya da tepsi menüsü) son 1 saat, 6 saat, 24 saat, 7 gün ya da seçtiğiniz aralık için grafikleri, hangi programın ne zaman ne kadar kullandığını gösteren tabloyu ve Windows'un o aralıkta kaydettiği program çökmelerini, donmaları, mavi ekranları, beklenmedik kapanmaları ve yeniden başlatmaları gösterir. Bir programa çift tıklayınca o programın son 24 saati de görünür.
+- **Program başına ağ kullanımı:** programa sağ tık → *Ağ kullanımını izle*. GitHub sürümünde, MemoryPulse yönetici olarak çalışırken ölçülür (*Windows ile başlat* onu böyle açar); bilgisayarın toplam ağ kullanımı her zaman kaydedilir.
 - **Windows ile başlat** seçeneği.
 - **Güncellemeleri kontrol et:** penceredeki veya tepsi menüsündeki bağlantıya tıklayınca MemoryPulse arka planda GitHub'dan en son sürümün numarasını sorar ve güncel olup olmadığınızı söyler. İndirme sayfası yalnız yeni sürüm varsa ve siz isterseniz açılır. Yeni sürüm çıkınca e-posta almak için [GitHub sayfasında](https://github.com/ahmetunaluzun/MemoryPulse) *Watch → Custom → Releases* seçin.
 - **Türkçe ve İngilizce.** Varsayılan olarak Windows diline göre açılır, ayarlardan değiştirilebilir.
-- **Hafif:** bildirim alanında dururken yaklaşık 26 MB özel bellek.
+- **Hafif:** bildirim alanında dururken geçmiş kaydı dahil yaklaşık 37 MB özel bellek.
 
 ## İndirme ve çalıştırma
 
@@ -50,14 +52,15 @@ MemoryPulse Microsoft Store için de hazırlanıyor. Store yönetici izni isteye
 | Kontrol aralığı | 60 sn | Belleğin arka planda ne sıklıkla ölçüleceği |
 | Bekleme süresi | 10 dk | İki bildirim arasındaki en kısa süre |
 | Önbelleği otomatik temizle | Açık | Kritik eşikte önbelleği temizler (*Windows ile başlat* gerekir, aşağıya bakın) |
+| Kullanım geçmişini kaydet | Açık | Belleği, G/Ç'yi, diski ve ağı dakikada bir kaydeder, 7 gün saklar |
 | Windows ile başlat | Kapalı | Oturum açınca MemoryPulse'ı bildirim alanında başlatır |
 | Dil | Otomatik | Windows dili, Türkçe ya da İngilizce |
 
-Ayarlar ve log `%APPDATA%\MemoryPulse\` altında durur (`settings.json`, `memorypulse.log`).
+Ayarlar, log ve geçmiş `%APPDATA%\MemoryPulse\` altında durur (`settings.json`, `memorypulse.log`, her gün için bir dosyayla `history\`).
 
 ## Gizlilik
 
-MemoryPulse **telemetri toplamaz** ve kendiliğinden hiçbir yere bağlanmaz. Tek ağ bağlantısı *Güncellemeleri kontrol et*'tir ve yalnız siz tıklayınca kurulur: GitHub'a (`api.github.com`) en son sürümün numarasını sorar. Bilgisayarınız veya belleğiniz hakkında hiçbir bilgi gönderilmez; GitHub, her web isteğinde olduğu gibi isteğin IP adresini görür. Geri kalan her şey bilgisayarınızda kalır: ayar dosyası ve yerel bir log. Microsoft Store sürümü hiçbir ağ bağlantısı kurmaz. Politikanın tamamı: [PRIVACY.md](PRIVACY.md).
+MemoryPulse **telemetri toplamaz** ve kendiliğinden hiçbir yere bağlanmaz. Tek ağ bağlantısı *Güncellemeleri kontrol et*'tir ve yalnız siz tıklayınca kurulur: GitHub'a (`api.github.com`) en son sürümün numarasını sorar. Bilgisayarınız veya belleğiniz hakkında hiçbir bilgi gönderilmez; GitHub, her web isteğinde olduğu gibi isteğin IP adresini görür. Geri kalan her şey bilgisayarınızda kalır: ayar dosyası, yerel bir log ve kullanım geçmişi. Microsoft Store sürümü hiçbir ağ bağlantısı kurmaz. Politikanın tamamı: [PRIVACY.md](PRIVACY.md).
 
 Ayrıntı penceresindeki yollar ve komut satırları yalnız ekranda gösterilir; loga ve ayar dosyasına yazılmaz. Komut satırında parola, token ya da anahtara benzeyen değerler gizlenir (`****`), ancak bu süzgeç her durumu yakalamayabilir: ayrıntı penceresinin ekran görüntüsünü paylaşmadan önce kontrol edin.
 

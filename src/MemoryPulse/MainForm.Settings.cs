@@ -39,6 +39,7 @@ namespace MemoryPulse
             // Store edition: no cache clearing, so no automatic clearing option.
             int row = 3;
             if (Edition.CanClean) _autoClean = Check(t, "settings.autoClean", "tip.autoClean", s.AutoClean, row++);
+            _history = Check(t, "settings.history", "tip.history", s.HistoryEnabled, row++);
             _startup = Check(t, "settings.startup", Edition.IsStore ? "tip.startupStore" : "tip.startup", Startup.IsEnabled(), row);
             t.SetColumnSpan(_startup, 3);
 
@@ -89,6 +90,7 @@ namespace MemoryPulse
             s.CooldownMin = (int)_cooldown.Value;
             if (_autoClean != null) s.AutoClean = _autoClean.Checked;
             s.Language = lang;
+            s.HistoryEnabled = _history.Checked;
             try { s.Save(); }
             catch (Exception ex) when (ex is System.IO.IOException || ex is UnauthorizedAccessException)
             {
