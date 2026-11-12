@@ -18,6 +18,7 @@ namespace MemoryPulse
         private readonly HistoryRecorder _history = new HistoryRecorder();
         private MainForm _form;
         private HistoryForm _historyForm;
+        private DiskForm _diskForm;
         private string _iconKey = "";
         private DateTime _lastAction = DateTime.MinValue;
 
@@ -61,6 +62,7 @@ namespace MemoryPulse
             open.Font = new Font(open.Font, FontStyle.Bold);
             if (Edition.CanClean) m.Items.Add(L.T("menu.clean"), null, (s, e) => CleanWithConfirm(null));
             m.Items.Add(L.T("btn.history"), null, (s, e) => ShowHistory());
+            m.Items.Add(L.T("btn.disk"), null, (s, e) => ShowDiskSpace());
             m.Items.Add(L.T("menu.taskmgr"), null, (s, e) => Program.OpenTaskManager());
             if (Edition.CanCheckUpdates) m.Items.Add(L.T("update.check"), null, async (s, e) => await CheckForUpdatesAsync(null));
             m.Items.Add(new ToolStripSeparator());
@@ -80,6 +82,7 @@ namespace MemoryPulse
                 L.Use(Settings.Language);
                 BuildMenu();
                 _historyForm?.Close(); // reopened in the new language on demand
+                _diskForm?.Close();
                 if (_form != null && !_form.IsDisposed)
                 {
                     var bounds = _form.Bounds;
@@ -229,6 +232,27 @@ namespace MemoryPulse
             _historyForm.Activate();
         }
 
+        public void ShowDiskSpace()
+        {
+            if (_diskForm == null || _diskForm.IsDisposed)
+            {
+                _diskForm = new DiskForm();
+                // A scan of a whole drive holds tens of MB (some of it in big arrays): drop it with the window.
+                _diskForm.FormClosed += (s, e) =>
+                {
+                    _diskForm = null;
+                    _ui.Post(_ =>
+                    {
+                        System.Runtime.GCSettings.LargeObjectHeapCompactionMode = System.Runtime.GCLargeObjectHeapCompactionMode.CompactOnce;
+                        ReleaseMemory();
+                    }, null);
+                };
+            }
+            if (_diskForm.WindowState == FormWindowState.Minimized) _diskForm.WindowState = FormWindowState.Normal;
+            _diskForm.Show();
+            _diskForm.Activate();
+        }
+
         public bool IsNetworkWatched(string program) =>
             Settings.WatchedNetwork.Exists(n => string.Equals(n, program, StringComparison.OrdinalIgnoreCase));
 
@@ -264,6 +288,7 @@ namespace MemoryPulse
             _tray.Visible = false;
             if (_form != null && !_form.IsDisposed) _form.Close();
             _historyForm?.Close();
+            _diskForm?.Close();
             _history.Dispose(); // also stops the network trace session
             ExitThread();
         }

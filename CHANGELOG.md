@@ -2,6 +2,13 @@
 
 All notable changes to MemoryPulse are listed here. Versions follow [Semantic Versioning](https://semver.org/).
 
+## [1.7.0] - 2026-11-12
+
+- Disks in the main window: one bar per drive with free and total space (amber below 10% free, red below 5%), and live disk activity for the whole PC: read speed, write speed and active time, refreshed every 5 seconds.
+- The program list has a *Disk I/O* column: how fast each program is reading and writing right now. Windows counts all file operations here, including reads answered from the cache, so it can be higher than the physical disk activity.
+- New *Disk space* window (button in the window and tray menu): scan a drive or a folder to see which folders take the room, as a tree sorted by size with each folder's share of its parent, file and folder counts and last change; the 100 largest files; and the file types that take the most space. Right-click to open a folder in Explorer, copy its path or scan again from it. The scan only reads (nothing is deleted or moved), runs at low priority, does not follow links (junctions, symbolic links) and counts the folders it was not allowed to read. Nothing it finds is saved.
+- The main window is a little wider and taller, and scrolls when the screen is too small for it.
+
 ## [1.6.0] - 2026-11-11
 
 - Usage history. Every minute MemoryPulse records available RAM, each program's memory and read/write (I/O), disk and network speed for the whole PC and free disk space, and keeps 7 days (files older than that are deleted). Turn it off with *Record usage history* in the settings.

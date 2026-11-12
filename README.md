@@ -24,6 +24,8 @@ MemoryPulse does the opposite: it teaches you to read the numbers, and only step
 - **Cache clearing only when you need it:** manually (with an explanation of why it is rarely needed) or automatically at the critical threshold.
 - **Usage history:** every minute MemoryPulse records available RAM, each program's memory and read/write (I/O), disk and network speed for the whole PC and free disk space, and keeps 7 days. *History* (button in the window or tray menu) shows charts for the last hour, 6 hours, 24 hours, 7 days or any range you pick, a table of which programs used how much and when, and the crashes, hangs, blue screens, unexpected shutdowns and restarts Windows logged in that range. Double-click a program to see its own last 24 hours.
 - **Network usage per program:** right-click a program → *Watch network usage*. Works in the GitHub edition while MemoryPulse runs as administrator (*Start with Windows* starts it that way); network usage for the whole PC is always recorded.
+- **Disks at a glance:** a bar per drive with free and total space (amber below 10% free, red below 5%), live read and write speed and active time for the whole PC, and a *Disk I/O* column showing how fast each program is reading and writing right now.
+- **Disk space:** *Disk space* (button in the window or tray menu) scans a drive or folder and shows which folders take the room, as a tree sorted by size, plus the 100 largest files and the file types that take the most space. Right-click opens a folder in Explorer, copies its path or scans again from it. It only reads: nothing is deleted or moved, and nothing it finds is saved.
 - **Start with Windows** option.
 - **Check for updates:** click the link in the window or the tray menu and MemoryPulse asks GitHub for the latest version number in the background, then tells you whether you are up to date. The download page opens only if a newer version exists and you choose to open it. To get an e-mail when a new version is out, choose *Watch → Custom → Releases* on the [GitHub page](https://github.com/ahmetunaluzun/MemoryPulse).
 - **English and Turkish.** Follows the Windows language by default; can be changed in settings.
@@ -60,7 +62,7 @@ Settings, the log and the history are stored in `%APPDATA%\MemoryPulse\` (`setti
 
 ## Privacy
 
-MemoryPulse collects **no telemetry** and never connects anywhere on its own. Its only network connection is *Check for updates*, and only when you click it: it asks GitHub (`api.github.com`) for the number of the latest release. Nothing about your PC or its memory is sent; as with any web request, GitHub sees the request's IP address. Everything else stays on your PC: the settings file, a local log and the usage history. The Microsoft Store edition makes no network connections at all. Full policy: [PRIVACY.md](PRIVACY.md).
+MemoryPulse collects **no telemetry** and never connects anywhere on its own. Its only network connection is *Check for updates*, and only when you click it: it asks GitHub (`api.github.com`) for the number of the latest release. Nothing about your PC or its memory is sent; as with any web request, GitHub sees the request's IP address. Everything else stays on your PC: the settings file, a local log and the usage history. The *Disk space* window shows file and folder names and sizes on screen only; they are not saved or logged. The Microsoft Store edition makes no network connections at all. Full policy: [PRIVACY.md](PRIVACY.md).
 
 The details window shows paths and command lines only on screen; they are never written to the log or settings. Values that look like passwords, tokens or keys in a command line are hidden (`****`), but this is a best-effort filter: check before sharing a screenshot of the details window.
 
@@ -72,6 +74,8 @@ The details window shows paths and command lines only on screen; they are never 
 | Standby, modified and free page lists | `NtQuerySystemInformation(SystemMemoryListInformation)` |
 | Clearing the cache (standby list) | `NtSetSystemInformation(SystemMemoryListInformation, MemoryPurgeStandbyList)` |
 | Programs using the most RAM | Process working sets, grouped by name |
+| Disk activity and per-program disk I/O | `PhysicalDisk` performance counters, `GetProcessIoCounters` |
+| Disk space scan | `FindFirstFileExW` (basic info, large fetch), links not followed |
 
 - MemoryPulse runs **without administrator rights**. Clearing the cache needs them, so when you ask for it MemoryPulse starts a second copy of itself with `--purge-standby` and Windows asks for permission (UAC).
 - **Start with Windows** creates a scheduled task named `MemoryPulse` that runs at sign-in with highest privileges. You approve this once; after that, automatic cache clearing works without a prompt each time.

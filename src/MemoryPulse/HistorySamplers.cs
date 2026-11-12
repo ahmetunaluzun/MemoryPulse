@@ -131,6 +131,29 @@ namespace MemoryPulse
             }
         }
 
+        private PerformanceCounter _diskIdle;
+        private bool _idleFailed;
+
+        /// <summary>
+        /// Share of the time since the previous call in which the physical disks were busy (0..100);
+        /// -1 when Windows counters are unavailable. The first call only sets the starting point.
+        /// </summary>
+        public double ReadDiskActive()
+        {
+            if (_idleFailed) return -1;
+            try
+            {
+                if (_diskIdle == null) _diskIdle = new PerformanceCounter("PhysicalDisk", "% Idle Time", "_Total", true);
+                return Math.Max(0, Math.Min(100, 100 - _diskIdle.NextValue()));
+            }
+            catch (Exception ex) when (ex is InvalidOperationException || ex is UnauthorizedAccessException || ex is Win32Exception)
+            {
+                _idleFailed = true;
+                Log.Write("WARN", "Disk active time counter unavailable, it will not be shown: " + ex.Message);
+                return -1;
+            }
+        }
+
         // MIB_IF_TABLE2 / MIB_IF_ROW2 (netioapi.h): the row is read by offset, it is the same on x86 and x64.
         private const int IfRowSize = 1352, IfFirstRow = 8, IfLuid = 0, IfFlags = 1152, IfInOctets = 1208, IfOutOctets = 1280;
         private const byte IfHardware = 0x01; // InterfaceAndOperStatusFlags.HardwareInterface
@@ -198,6 +221,7 @@ namespace MemoryPulse
         {
             _diskRead?.Dispose();
             _diskWrite?.Dispose();
+            _diskIdle?.Dispose();
         }
     }
 }

@@ -28,8 +28,8 @@ namespace MemoryPulse
             Font = new Font("Segoe UI", 9.75f);
             AutoScaleMode = AutoScaleMode.Dpi;
             StartPosition = FormStartPosition.CenterScreen;
-            ClientSize = new Size(640, 830);
-            MinimumSize = new Size(600, 640);
+            ClientSize = new Size(700, 940);
+            MinimumSize = new Size(600, 480);
             AutoScroll = true;
             Padding = new Padding(10);
             Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
@@ -41,10 +41,13 @@ namespace MemoryPulse
             AddRow(root, BuildBar(), SizeType.Absolute, 30);
             AddRow(root, BuildLegend());
             AddRow(root, BuildInfo());
+            AddRow(root, BuildDisks());
+            int listRow = root.RowCount;
             AddRow(root, BuildList(), SizeType.Percent, 100);
             AddRow(root, BuildButtons());
             AddRow(root, BuildSettings());
             AddRow(root, BuildFooter());
+            KeepScrollable(root, listRow);
 
             _app.Updated += OnUpdated;
             _refresh.Tick += (s, e) => RefreshNow();
@@ -57,6 +60,7 @@ namespace MemoryPulse
         {
             _app.Updated -= OnUpdated;
             _refresh.Dispose();
+            _disk.Dispose();
             base.OnFormClosing(e);
         }
 
@@ -127,13 +131,14 @@ namespace MemoryPulse
         private Control BuildList()
         {
             var g = new GroupBox { Text = L.T("list.title"), Dock = DockStyle.Fill, Margin = new Padding(4), Padding = new Padding(8, 6, 8, 8),
-                                   MinimumSize = new Size(0, 170) };
+                                   MinimumSize = new Size(0, ListMinHeight) };
             _list = new ListView { View = View.Details, FullRowSelect = true, Dock = DockStyle.Fill,
                                    HeaderStyle = ColumnHeaderStyle.Nonclickable };
             int w = TextRenderer.MeasureText(L.T("list.count"), Font).Width + 30;
             _list.Columns.Add(L.T("list.program"), 200);
             _list.Columns.Add(L.T("list.count"), w, HorizontalAlignment.Right);
             _list.Columns.Add(L.T("list.ram"), Math.Max(w, 100), HorizontalAlignment.Right);
+            _list.Columns.Add(L.T("list.io"), TextRenderer.MeasureText(L.T("list.io"), Font).Width + 30, HorizontalAlignment.Right);
             _list.Resize += (s, e) => FitColumns();
             _list.DoubleClick += (s, e) => OpenDetails(SelectedProgram);
             _list.KeyDown += (s, e) => { if (e.KeyCode == Keys.Enter) OpenDetails(SelectedProgram); };
@@ -166,10 +171,10 @@ namespace MemoryPulse
 
         private void FitColumns()
         {
-            if (_list == null || _list.Columns.Count < 3) return;
+            if (_list == null || _list.Columns.Count <= IoColumn) return;
             // Always reserve room for the vertical scrollbar so a horizontal one never appears.
             int inner = _list.Width - SystemInformation.Border3DSize.Width * 2 - SystemInformation.VerticalScrollBarWidth - 2;
-            _list.Columns[0].Width = Math.Max(120, inner - _list.Columns[1].Width - _list.Columns[2].Width);
+            _list.Columns[0].Width = Math.Max(120, inner - _list.Columns[1].Width - _list.Columns[2].Width - _list.Columns[IoColumn].Width);
         }
 
         private Control BuildButtons()
@@ -185,6 +190,7 @@ namespace MemoryPulse
             if (Edition.CanClean) Add("btn.clean", () => { _app.CleanWithConfirm(this); RefreshNow(); }, "tip.clean");
             Add("btn.refresh", RefreshNow);
             Add("btn.history", _app.ShowHistory, "tip.historyBtn");
+            Add("btn.disk", _app.ShowDiskSpace, "tip.diskBtn");
             Add("btn.taskmgr", Program.OpenTaskManager);
             Add("btn.log", () => { if (System.IO.File.Exists(AppPaths.LogFile)) Process.Start("notepad.exe", $"\"{AppPaths.LogFile}\""); });
             return f;
@@ -230,6 +236,7 @@ namespace MemoryPulse
             if (IsDisposed) return;
             try { Show(MemoryInfo.Read()); }
             catch (System.ComponentModel.Win32Exception ex) { Log.Write("ERROR", "Window refresh failed: " + ex.Message); }
+            SampleDisk();
         }
 
         private void Show(MemorySnapshot s)
@@ -258,6 +265,7 @@ namespace MemoryPulse
                 var item = new ListViewItem(p.Name) { Tag = p.Name };
                 item.SubItems.Add(p.Count.ToString(L.Culture));
                 item.SubItems.Add(MemorySnapshot.Gb(p.WorkingSet).ToString("0.00", L.Culture) + " GB");
+                item.SubItems.Add(IoText(p.Name));
                 _list.Items.Add(item);
                 if (string.Equals(p.Name, keep, StringComparison.OrdinalIgnoreCase)) item.Selected = true;
             }
