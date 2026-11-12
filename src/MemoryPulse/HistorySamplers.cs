@@ -38,6 +38,7 @@ namespace MemoryPulse
             var current = new Dictionary<int, IO_COUNTERS>();
             var names = new Dictionary<int, string>();
             var groups = new Dictionary<string, ProgramSample>(StringComparer.OrdinalIgnoreCase);
+            var ram = ProcessRam.Snapshot();
             foreach (var p in Process.GetProcesses())
             {
                 using (p)
@@ -48,7 +49,7 @@ namespace MemoryPulse
                         names[p.Id] = name;
                         if (!groups.TryGetValue(name, out var g)) groups[name] = g = new ProgramSample { Name = name };
                         g.Count++;
-                        g.WorkingSet += p.WorkingSet64;
+                        g.WorkingSet += ProcessRam.Of(p, ram);
                         if (p.Id != 0 && TryReadIo(p.Id, out IO_COUNTERS io))
                         {
                             current[p.Id] = io;

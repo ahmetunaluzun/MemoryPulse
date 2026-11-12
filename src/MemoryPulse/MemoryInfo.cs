@@ -23,7 +23,20 @@ namespace MemoryPulse
     {
         public string Name;
         public int Count;
-        public ulong WorkingSet;
+        public ulong WorkingSet; // private working set (see ProcessRam)
+    }
+
+    /// <summary>
+    /// The one place that says how much RAM a process uses: its private working set, like Task Manager's
+    /// "Memory" column. Process.WorkingSet64 also counts shared pages in every process that maps them,
+    /// so its total can exceed the RAM in use. Falls back to WorkingSet64 if Windows does not answer.
+    /// </summary>
+    internal static class ProcessRam
+    {
+        public static Dictionary<int, long> Snapshot() => Native.PrivateWorkingSets();
+
+        public static long Of(Process p, Dictionary<int, long> snapshot) =>
+            snapshot != null && snapshot.TryGetValue(p.Id, out long bytes) ? bytes : p.WorkingSet64;
     }
 
     internal static class MemoryInfo
@@ -73,9 +86,13 @@ namespace MemoryPulse
             }
         }
 
-        /// <summary>Processes grouped by name, largest working set first.</summary>
-        public static List<ProcessUsage> TopProcesses(int count)
+        /// <summary>Processes grouped by name, largest private working set first.</summary>
+        public static List<ProcessUsage> TopProcesses(int count) => TopProcesses(count, out _);
+
+        /// <summary>Same, plus the private working set of all processes together (not just the top ones).</summary>
+        public static List<ProcessUsage> TopProcesses(int count, out ulong total)
         {
+            var ram = ProcessRam.Snapshot();
             var groups = new Dictionary<string, ProcessUsage>(StringComparer.OrdinalIgnoreCase);
             foreach (var p in Process.GetProcesses())
             {
@@ -86,11 +103,13 @@ namespace MemoryPulse
                         if (!groups.TryGetValue(p.ProcessName, out var u))
                             groups[p.ProcessName] = u = new ProcessUsage { Name = p.ProcessName };
                         u.Count++;
-                        u.WorkingSet += (ulong)p.WorkingSet64;
+                        u.WorkingSet += (ulong)ProcessRam.Of(p, ram);
                     }
                     catch (InvalidOperationException) { /* process exited while enumerating */ }
                 }
             }
+            total = 0;
+            foreach (var g in groups.Values) total += g.WorkingSet;
             return groups.Values.OrderByDescending(g => g.WorkingSet).Take(count).ToList();
         }
     }

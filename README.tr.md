@@ -17,7 +17,7 @@ MemoryPulse bunun tersini yapar: rakamları okumayı öğretir ve yalnız gerçe
 ## Özellikler
 
 - **Anlık bellek görünümü:** kullanılabilir, önbelleğe alınan (bekleme + değiştirilmiş; Görev Yöneticisi'ndeki *Önbelleğe alınan* ile aynı değer), boş, değiştirilmiş, ayrılan (commit) ve toplam RAM. Her birinin üzerine gelince açıklaması çıkar.
-- **En çok RAM kullanan programlar,** program adına göre gruplanmış.
+- **En çok RAM kullanan programlar,** program adına göre gruplanmış. Buradaki RAM yalnız o programa ait bellektir (private working set); Görev Yöneticisi'ndeki *Bellek* sütunuyla aynı. Listenin altındaki satır, kullanımdaki belleğin ne kadarının programlara, ne kadarının Windows'a, sürücülere ve ortak belleğe ait olduğunu gösterir.
 - **Programın nereden çalıştığı:** bir programa çift tıklayın (ya da sağ tık → *Ayrıntılar*). Çalışan her kopyası dosya konumu, açıklaması, yayıncısı ve çalışma klasörüyle listelenir. Adı tek başına bir şey anlatmayan programlarda (node, python, java, PowerShell, WebView2, svchost…) komut satırı da görünür; böylece belleği hangi betiğin, uygulamanın ya da Windows hizmetinin kullandığını anlarsınız. *Dosya konumunu aç* dosyayı Gezgin'de gösterir.
 - **Durumu gösteren simge:** normalde düz, uyarı eşiğinin altında turuncu, kritik eşiğin altında kırmızı.
 - **Kritik eşikte bildirim:** en çok bellek kullanan programları listeler, neyi kapatabileceğinizi görürsünüz.
@@ -73,7 +73,7 @@ Ayrıntı penceresindeki yollar ve komut satırları yalnız ekranda gösterilir
 | Toplam ve kullanılabilir bellek, commit | `GlobalMemoryStatusEx` |
 | Bekleme, değiştirilmiş ve boş sayfa listeleri | `NtQuerySystemInformation(SystemMemoryListInformation)` |
 | Önbelleği (bekleme listesini) temizleme | `NtSetSystemInformation(SystemMemoryListInformation, MemoryPurgeStandbyList)` |
-| En çok RAM kullanan programlar | Süreçlerin çalışma kümeleri, ada göre gruplanmış |
+| En çok RAM kullanan programlar | Süreç başına private working set (`NtQuerySystemInformation(SystemProcessInformation)`), ada göre gruplanmış |
 | Disk etkinliği ve program başına disk G/Ç | `PhysicalDisk` performans sayaçları, `GetProcessIoCounters` |
 | Disk alanı taraması | `FindFirstFileExW` (temel bilgi, büyük okuma), bağlantılar izlenmez |
 

@@ -21,6 +21,7 @@ namespace MemoryPulse
     ///   D,time,drive,free,total
     ///   P,time,program,processCount,workingSet,ioRead,ioWrite
     ///   N,time,program,netRx,netTx
+    /// workingSet is the private working set from 1.7.1 on (older files: full working set, shared pages included).
     /// Sizes are bytes; disk, network and I/O values are bytes during the interval; -1 = not available.
     /// </summary>
     internal static class HistoryStore

@@ -17,6 +17,7 @@ namespace MemoryPulse
         private readonly Timer _refresh = new Timer { Interval = 5000 };
         private Panel _bar;
         private ListView _list;
+        private Label _listTotal;
         private Label _status;
         private MemorySnapshot _last;
 
@@ -150,7 +151,11 @@ namespace MemoryPulse
             AddHistoryMenu(menu, () => menuTarget);
             _list.ContextMenuStrip = menu;
             _tips.SetToolTip(_list, L.T("list.hint"));
+            _listTotal = new Label { Dock = DockStyle.Bottom, AutoSize = false, Height = Font.Height + 8,
+                                     TextAlign = ContentAlignment.BottomLeft, AutoEllipsis = true };
+            _tips.SetToolTip(_listTotal, L.T("list.totalHint"));
             g.Controls.Add(_list);
+            g.Controls.Add(_listTotal); // docked first, so the list fills the space above it
             return g;
         }
 
@@ -260,7 +265,11 @@ namespace MemoryPulse
             string keep = SelectedProgram;
             _list.BeginUpdate();
             _list.Items.Clear();
-            foreach (var p in MemoryInfo.TopProcesses(25))
+            var top = MemoryInfo.TopProcesses(25, out ulong programs);
+            ulong rest = s.InUse > programs ? s.InUse - programs : 0;
+            _listTotal.Text = L.T("list.total", L.Gb(MemorySnapshot.Gb(programs)), L.Gb(MemorySnapshot.Gb(rest)),
+                                  L.Gb(MemorySnapshot.Gb(s.InUse)));
+            foreach (var p in top)
             {
                 var item = new ListViewItem(p.Name) { Tag = p.Name };
                 item.SubItems.Add(p.Count.ToString(L.Culture));

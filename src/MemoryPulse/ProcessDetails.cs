@@ -67,12 +67,13 @@ namespace MemoryPulse
             var result = new List<ProcessInstance>();
             var versionCache = new Dictionary<string, FileVersionInfo>(StringComparer.OrdinalIgnoreCase);
             bool wantCmd = ShowsCommandLine(name);
+            var ram = ProcessRam.Snapshot();
             foreach (var p in Process.GetProcessesByName(name))
             {
                 using (p)
                 {
                     var inst = new ProcessInstance { Pid = p.Id };
-                    try { inst.WorkingSet = (ulong)p.WorkingSet64; }
+                    try { inst.WorkingSet = (ulong)ProcessRam.Of(p, ram); }
                     catch (InvalidOperationException) { continue; } // exited meanwhile
                     ReadNative(p.Id, wantCmd, inst);
                     if (inst.Path != null)

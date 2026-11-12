@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
 using System.Security.Principal;
@@ -10,6 +11,8 @@ namespace MemoryPulse
     {
         private const int SystemMemoryListInformation = 80;
         private const int MemoryPurgeStandbyList = 4;
+        private const int SystemProcessInformation = 5;
+        private const int StatusInfoLengthMismatch = unchecked((int)0xC0000004);
         private const uint TOKEN_ADJUST_PRIVILEGES = 0x20;
         private const uint TOKEN_QUERY = 0x8;
         private const uint SE_PRIVILEGE_ENABLED = 0x2;
@@ -119,6 +122,44 @@ namespace MemoryPulse
             {
                 Marshal.FreeHGlobal(buf);
             }
+        }
+
+        /// <summary>
+        /// Private working set of every process (PID -> bytes): the RAM only that process uses, the value
+        /// Task Manager shows as "Memory". Shared pages (DLLs, shared memory) are not counted.
+        /// Needs no administrator rights and opens no process handles. Returns null if the call fails.
+        /// </summary>
+        public static Dictionary<int, long> PrivateWorkingSets()
+        {
+            int size = 1 << 20;
+            for (int attempt = 0; attempt < 5; attempt++)
+            {
+                IntPtr buf = Marshal.AllocHGlobal(size);
+                try
+                {
+                    int status = NtQuerySystemInformation(SystemProcessInformation, buf, size, out int needed);
+                    if (status == StatusInfoLengthMismatch) { size = Math.Max(size * 2, needed + 65536); continue; }
+                    if (status != 0) return null;
+                    var result = new Dictionary<int, long>();
+                    int pidOffset = 56 + 3 * IntPtr.Size; // SYSTEM_PROCESS_INFORMATION.UniqueProcessId (x64: 80, x86: 68)
+                    long offset = 0;
+                    while (true)
+                    {
+                        IntPtr entry = new IntPtr(buf.ToInt64() + offset);
+                        int pid = (int)Marshal.ReadIntPtr(entry, pidOffset).ToInt64();
+                        result[pid] = Marshal.ReadInt64(entry, 8); // WorkingSetPrivateSize
+                        uint next = (uint)Marshal.ReadInt32(entry, 0);
+                        if (next == 0) break;
+                        offset += next;
+                    }
+                    return result;
+                }
+                finally
+                {
+                    Marshal.FreeHGlobal(buf);
+                }
+            }
+            return null;
         }
 
         /// <summary>Empties the standby list. Requires administrator rights.</summary>

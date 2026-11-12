@@ -17,7 +17,7 @@ MemoryPulse does the opposite: it teaches you to read the numbers, and only step
 ## Features
 
 - **Live memory view:** available, cached (standby + modified, the same value as *Cached* in Task Manager), free, modified, commit and total RAM, with a tooltip explaining each one.
-- **Programs using the most RAM,** grouped by program name.
+- **Programs using the most RAM,** grouped by program name. RAM here is the memory that belongs to the program alone (private working set), the same as the *Memory* column in Task Manager. A line under the list shows how much of the memory in use is programs, and how much is Windows, drivers and shared memory.
 - **Where each program runs from:** double-click a program (or right-click → *Details*) to see every running copy with its file location, description, publisher and working folder. For programs whose name says little on its own (node, python, java, PowerShell, WebView2, svchost…) it also shows the command line, so you can tell which script, app or Windows service is using the memory. *Open file location* jumps to it in Explorer.
 - **Tray icon that shows the state:** normal, amber below the warning threshold, red below the critical threshold.
 - **Notification at the critical threshold** listing the top programs, so you know what to close.
@@ -73,7 +73,7 @@ The details window shows paths and command lines only on screen; they are never 
 | Total, available memory and commit | `GlobalMemoryStatusEx` |
 | Standby, modified and free page lists | `NtQuerySystemInformation(SystemMemoryListInformation)` |
 | Clearing the cache (standby list) | `NtSetSystemInformation(SystemMemoryListInformation, MemoryPurgeStandbyList)` |
-| Programs using the most RAM | Process working sets, grouped by name |
+| Programs using the most RAM | Private working set per process (`NtQuerySystemInformation(SystemProcessInformation)`), grouped by name |
 | Disk activity and per-program disk I/O | `PhysicalDisk` performance counters, `GetProcessIoCounters` |
 | Disk space scan | `FindFirstFileExW` (basic info, large fetch), links not followed |
 

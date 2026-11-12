@@ -11,7 +11,7 @@ namespace MemoryPulse
     internal sealed partial class MainForm
     {
         private const int IoColumn = 3;
-        private const int ListMinHeight = 140;
+        private const int ListMinHeight = 170; // list box incl. the totals line under it
         private const int FollowUpMs = 1500; // the first reading has nothing to compare with: take a second one soon
         private const double BytesPerMb = 1024 * 1024;
 

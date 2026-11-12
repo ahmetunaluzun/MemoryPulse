@@ -2,6 +2,12 @@
 
 All notable changes to MemoryPulse are listed here. Versions follow [Semantic Versioning](https://semver.org/).
 
+## [1.7.1] - 2026-11-12
+
+- The RAM shown for each program is now its private working set: the memory that belongs to that program alone, the same as the *Memory* column in Task Manager. Before, it was the full working set, which also counts memory shared with other programs (such as common DLLs) once in every program that uses it, so the list could add up to more than the RAM in use. This applies to the program list, the tray tip, the program details window and the usage history.
+- Below the program list, one line splits the memory in use: programs (all of them, not just the listed ones), Windows, drivers and shared memory, and the total in use.
+- Usage history recorded before 1.7.1 keeps the old (full working set) values, so program RAM in older days can look higher than in newer ones.
+
 ## [1.7.0] - 2026-11-12
 
 - Disks in the main window: one bar per drive with free and total space (amber below 10% free, red below 5%), and live disk activity for the whole PC: read speed, write speed and active time, refreshed every 5 seconds.
