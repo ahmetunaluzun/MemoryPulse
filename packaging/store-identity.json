@@ -1,6 +1,6 @@
 {
-  "_comment": "Partner Center > MemoryPulse > Product management > Product identity. Copy the three values from there; until then these are local test values.",
-  "Name": "MemoryPulse.LocalTest",
-  "Publisher": "CN=MemoryPulse Local Test",
+  "_comment": "Partner Center > MemoryPulse > Product management > Product identity (copied 2026-11-13). Store ID 9NBXNN7QK8RJ, PFN AhmetnalUzun.MemoryPulse_fjg2ts1a6a04j.",
+  "Name": "AhmetnalUzun.MemoryPulse",
+  "Publisher": "CN=D4BE2A4E-EF42-4E0D-A2FB-E7F5BE6D7121",
   "PublisherDisplayName": "Ahmet Ünal Uzun"
 }
