@@ -43,7 +43,7 @@ MemoryPulse does the opposite: it teaches you to read the numbers, and only step
 
 ### Microsoft Store edition
 
-MemoryPulse is also being prepared for the Microsoft Store. The Store does not accept apps that ask for administrator rights, so the Store edition **does not clear the cache**: it shows the same memory figures, program list, details and notifications, and *Start with Windows* uses the Store's own startup setting (you can also turn it off in Task Manager → Startup apps). It has no *Check for updates*, because the Store updates it, and it makes no network connections at all. Cache clearing is in this GitHub edition. Both are built from the same code; the exe detects which one it is.
+MemoryPulse is also on the Microsoft Store: [get it from the Store](https://apps.microsoft.com/detail/9NBXNN7QK8RJ). The Store does not accept apps that ask for administrator rights, so the Store edition **does not clear the cache**: it shows the same memory figures, program list, details and notifications, and *Start with Windows* uses the Store's own startup setting (you can also turn it off in Task Manager → Startup apps). It has no *Check for updates*, because the Store updates it, and it makes no network connections at all. Cache clearing is in this GitHub edition. Both are built from the same code; the exe detects which one it is.
 
 ## Settings
 

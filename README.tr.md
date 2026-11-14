@@ -43,7 +43,7 @@ MemoryPulse bunun tersini yapar: rakamları okumayı öğretir ve yalnız gerçe
 
 ### Microsoft Store sürümü
 
-MemoryPulse Microsoft Store için de hazırlanıyor. Store yönetici izni isteyen uygulamaları kabul etmediği için Store sürümü **önbelleği temizlemez**. Aynı bellek değerlerini, program listesini, ayrıntıları ve bildirimleri gösterir. *Windows ile başlat* Store'un kendi başlangıç ayarını kullanır; Görev Yöneticisi → Başlangıç uygulamaları'ndan da kapatılabilir. Store güncellediği için *Güncellemeleri kontrol et* yoktur ve hiçbir ağ bağlantısı kurmaz. Önbellek temizliği bu GitHub sürümündedir. İkisi aynı koddan derlenir; exe hangisi olduğunu kendisi anlar.
+MemoryPulse Microsoft Store'da da var: [Store'dan edinin](https://apps.microsoft.com/detail/9NBXNN7QK8RJ). Store yönetici izni isteyen uygulamaları kabul etmediği için Store sürümü **önbelleği temizlemez**. Aynı bellek değerlerini, program listesini, ayrıntıları ve bildirimleri gösterir. *Windows ile başlat* Store'un kendi başlangıç ayarını kullanır; Görev Yöneticisi → Başlangıç uygulamaları'ndan da kapatılabilir. Store güncellediği için *Güncellemeleri kontrol et* yoktur ve hiçbir ağ bağlantısı kurmaz. Önbellek temizliği bu GitHub sürümündedir. İkisi aynı koddan derlenir; exe hangisi olduğunu kendisi anlar.
 
 ## Ayarlar
 
