@@ -7,7 +7,7 @@ using System.Windows.Forms;
 
 namespace MemoryPulse
 {
-    /// <summary>Main window: memory cards, usage bar, explanation, top programs, settings.</summary>
+    /// <summary>Main window: CPU, memory cards, usage bar, explanation, disks, top programs, settings.</summary>
     internal sealed partial class MainForm : Form
     {
         private readonly TrayApp _app;
@@ -29,7 +29,7 @@ namespace MemoryPulse
             Font = new Font("Segoe UI", 9.75f);
             AutoScaleMode = AutoScaleMode.Dpi;
             StartPosition = FormStartPosition.CenterScreen;
-            ClientSize = new Size(700, 940);
+            ClientSize = new Size(700, 970);
             MinimumSize = new Size(600, 480);
             AutoScroll = true;
             Padding = new Padding(10);
@@ -38,6 +38,7 @@ namespace MemoryPulse
             var root = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1 };
             root.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
             Controls.Add(root);
+            AddRow(root, BuildCpu());
             AddRow(root, BuildCards());
             AddRow(root, BuildBar(), SizeType.Absolute, 30);
             AddRow(root, BuildLegend());
@@ -139,6 +140,7 @@ namespace MemoryPulse
             _list.Columns.Add(L.T("list.program"), 200);
             _list.Columns.Add(L.T("list.count"), w, HorizontalAlignment.Right);
             _list.Columns.Add(L.T("list.ram"), Math.Max(w, 100), HorizontalAlignment.Right);
+            _list.Columns.Add(L.T("list.cpu"), TextRenderer.MeasureText("%100,0", Font).Width + 24, HorizontalAlignment.Right);
             _list.Columns.Add(L.T("list.io"), TextRenderer.MeasureText(L.T("list.io"), Font).Width + 30, HorizontalAlignment.Right);
             _list.Resize += (s, e) => FitColumns();
             _list.DoubleClick += (s, e) => OpenDetails(SelectedProgram);
@@ -179,7 +181,9 @@ namespace MemoryPulse
             if (_list == null || _list.Columns.Count <= IoColumn) return;
             // Always reserve room for the vertical scrollbar so a horizontal one never appears.
             int inner = _list.Width - SystemInformation.Border3DSize.Width * 2 - SystemInformation.VerticalScrollBarWidth - 2;
-            _list.Columns[0].Width = Math.Max(120, inner - _list.Columns[1].Width - _list.Columns[2].Width - _list.Columns[IoColumn].Width);
+            int others = 0;
+            for (int i = 1; i < _list.Columns.Count; i++) others += _list.Columns[i].Width;
+            _list.Columns[0].Width = Math.Max(120, inner - others);
         }
 
         private Control BuildButtons()
@@ -274,6 +278,7 @@ namespace MemoryPulse
                 var item = new ListViewItem(p.Name) { Tag = p.Name };
                 item.SubItems.Add(p.Count.ToString(L.Culture));
                 item.SubItems.Add(MemorySnapshot.Gb(p.WorkingSet).ToString("0.00", L.Culture) + " GB");
+                item.SubItems.Add(CpuText(p.Name));
                 item.SubItems.Add(IoText(p.Name));
                 _list.Items.Add(item);
                 if (string.Equals(p.Name, keep, StringComparison.OrdinalIgnoreCase)) item.Selected = true;

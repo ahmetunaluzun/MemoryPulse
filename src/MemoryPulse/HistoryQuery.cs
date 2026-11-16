@@ -30,8 +30,8 @@ namespace MemoryPulse
         private struct Bucket
         {
             public long Slot;
-            public int Count, CachedCount;
-            public double Available, Cached, Seconds, DiskRead, DiskWrite, NetRx, NetTx;
+            public int Count, CachedCount, CpuCount;
+            public double Available, Cached, Seconds, DiskRead, DiskWrite, NetRx, NetTx, Cpu;
             public DateTime Last;
 
             public void Flush(HistoryData d)
@@ -43,15 +43,17 @@ namespace MemoryPulse
                     Time = Last,
                     Available = Available / Count,
                     Cached = CachedCount == 0 ? double.NaN : Cached / CachedCount,
-                    DiskRead = DiskRead / sec, DiskWrite = DiskWrite / sec, NetRx = NetRx / sec, NetTx = NetTx / sec
+                    DiskRead = DiskRead / sec, DiskWrite = DiskWrite / sec, NetRx = NetRx / sec, NetTx = NetTx / sec,
+                    Cpu = CpuCount == 0 ? double.NaN : Cpu / CpuCount
                 });
                 this = default(Bucket);
             }
         }
 
-        // S values: seconds, available, cached, commit, diskRead, diskWrite, netRx, netTx
+        // S values: seconds, available, cached, commit, diskRead, diskWrite, netRx, netTx, cpu
         private static void AddSystem(HistoryData d, ref Bucket b, HistoryLine line)
         {
+            double cpu = HistoryStore.CpuPercent(line.V[8]);
             long slot = line.Time.Ticks / (TimeSpan.TicksPerSecond * d.BucketSeconds);
             if (slot != b.Slot) { b.Flush(d); b.Slot = slot; }
             long[] v = line.V;
@@ -60,6 +62,11 @@ namespace MemoryPulse
             b.Seconds += v[0];
             b.Available += v[1];
             if (v[2] >= 0) { b.Cached += v[2]; b.CachedCount++; }
+            if (cpu >= 0)
+            {
+                b.Cpu += cpu; b.CpuCount++;
+                if (cpu > d.PeakCpu) { d.PeakCpu = cpu; d.PeakCpuTime = line.Time; }
+            }
             b.DiskRead += Positive(v[4]); b.DiskWrite += Positive(v[5]);
             b.NetRx += Positive(v[6]); b.NetTx += Positive(v[7]);
             d.DiskRead += Positive(v[4]); d.DiskWrite += Positive(v[5]);
@@ -86,18 +93,25 @@ namespace MemoryPulse
         private static bool Wanted(string name, string program) =>
             program == null || string.Equals(name, program, StringComparison.OrdinalIgnoreCase);
 
-        // P values: process count, working set, read, write
+        // P values: process count, working set, read, write, cpu
         private static void AddProgram(HistoryData d, HistoryLine line, string program)
         {
             if (!Wanted(line.Name, program)) return;
             var s = StatFor(d, line.Name);
             long ws = line.V[1];
+            double cpu = HistoryStore.CpuPercent(line.V[4]);
             s.Samples++;
             s.SumWorkingSet += ws;
             if (ws > s.PeakWorkingSet) { s.PeakWorkingSet = ws; s.PeakTime = line.Time; }
             s.Read += Positive(line.V[2]);
             s.Write += Positive(line.V[3]);
-            if (program != null) { d.ProgramTimes.Add(line.Time); d.ProgramRam.Add(ws); }
+            if (cpu >= 0)
+            {
+                s.CpuSamples++;
+                s.SumCpu += cpu;
+                s.PeakCpu = Math.Max(s.PeakCpu, cpu);
+            }
+            if (program != null) { d.ProgramTimes.Add(line.Time); d.ProgramRam.Add(ws); d.ProgramCpu.Add(cpu >= 0 ? cpu : double.NaN); }
         }
 
         private static void AddNetwork(HistoryData d, HistoryLine line, string program)

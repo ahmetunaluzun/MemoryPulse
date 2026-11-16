@@ -48,6 +48,8 @@ namespace MemoryPulse
         public Func<double, string> FormatY = v => v.ToString("0.##");
         /// <summary>The widest value label to make room for, so charts stacked on top of each other line up.</summary>
         public string AxisSample = "";
+        /// <summary>Top of the value axis when the scale is fixed (CPU: 100); 0 = fit to the values.</summary>
+        public double FixedMax;
 
         public LineChart()
         {
@@ -75,7 +77,7 @@ namespace MemoryPulse
             g.Clear(BackColor);
             var values = _series.SelectMany(s => s.Values).Where(v => !double.IsNaN(v)).ToList();
             _hasValues = values.Count > 0; // an empty chart shows its grid without made-up numbers
-            double max = NiceMax(_hasValues ? values.Max() : 0);
+            double max = FixedMax > 0 ? FixedMax : NiceMax(_hasValues ? values.Max() : 0);
             int line = Font.Height;
             int left = Pad + Enumerable.Range(0, Divisions + 1).Select(i => FormatY(max * i / Divisions)).Concat(new[] { AxisSample })
                                        .Max(text => TextRenderer.MeasureText(g, text, Font).Width);

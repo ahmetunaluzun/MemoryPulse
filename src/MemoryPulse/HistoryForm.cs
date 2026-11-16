@@ -20,7 +20,7 @@ namespace MemoryPulse
         private readonly Timer _auto = new Timer { Interval = HistoryConfig.SampleSeconds * 1000 };
         private ComboBox _range;
         private DateTimePicker _from, _to;
-        private LineChart _ram, _disk, _net;
+        private LineChart _ram, _cpu, _disk, _net;
         private Label _empty, _summary;
         private ListView _programs, _events;
         private bool _loading, _reloadPending;
@@ -32,7 +32,7 @@ namespace MemoryPulse
             Font = new Font("Segoe UI", 9.75f);
             AutoScaleMode = AutoScaleMode.Dpi;
             StartPosition = FormStartPosition.CenterScreen;
-            ClientSize = new Size(920, 660);
+            ClientSize = new Size(1140, 760);
             MinimumSize = new Size(640, 480);
             Padding = new Padding(10);
             Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
@@ -97,7 +97,7 @@ namespace MemoryPulse
         private TabPage BuildChartsTab()
         {
             var page = new TabPage(L.T("history.tab.charts")) { Padding = new Padding(6), AutoScroll = true, BackColor = Color.White };
-            var t = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, MinimumSize = new Size(0, ChartMinHeight * 3) };
+            var t = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, MinimumSize = new Size(0, ChartMinHeight * 4) };
             t.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
             _empty = new Label { AutoSize = true, Dock = DockStyle.Top, BackColor = Palette.InfoBack, Padding = new Padding(10, 8, 10, 8),
                                  Margin = new Padding(0, 0, 0, 6), Visible = false };
@@ -107,16 +107,18 @@ namespace MemoryPulse
             {
                 var c = new LineChart { Title = L.T(title), FormatY = format, AxisSample = Fmt.Rate(WidestAxisValue),
                                         Dock = DockStyle.Fill, Margin = new Padding(0, 0, 0, 4) };
-                t.RowStyles.Add(new RowStyle(SizeType.Percent, 33.33f));
+                t.RowStyles.Add(new RowStyle(SizeType.Percent, 25f));
                 t.Controls.Add(c, 0, row);
                 return c;
             }
             _ram = Chart("history.chart.ram", v => Fmt.Bytes(v, "0.##"), 1);
-            _disk = Chart("history.chart.disk", v => Fmt.Rate(v, "0.##"), 2);
-            _net = Chart("history.chart.net", v => Fmt.Rate(v, "0.##"), 3);
+            _cpu = Chart("history.chart.cpu", Fmt.PercentAxis, 2);
+            _cpu.FixedMax = 100;
+            _disk = Chart("history.chart.disk", v => Fmt.Rate(v, "0.##"), 3);
+            _net = Chart("history.chart.net", v => Fmt.Rate(v, "0.##"), 4);
             _summary = new Label { AutoSize = true, Dock = DockStyle.Top, ForeColor = Palette.Muted, Margin = new Padding(0, 4, 0, 0) };
             t.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-            t.Controls.Add(_summary, 0, 4);
+            t.Controls.Add(_summary, 0, 5);
             t.Resize += (s, e) => _summary.MaximumSize = _empty.MaximumSize = new Size(Math.Max(100, t.ClientSize.Width), 0);
             page.Controls.Add(t);
             return page;
@@ -129,6 +131,7 @@ namespace MemoryPulse
             _programs.Columns.Add(L.T("list.program"), MinFillWidth);
             foreach (string key in new[] { "history.col.avgRam", "history.col.peakRam" }) AddColumn(_programs, key, HorizontalAlignment.Right);
             AddColumn(_programs, "history.col.peakTime", HorizontalAlignment.Left, DateTime.Now.ToString("g", L.Culture));
+            foreach (string key in new[] { "history.col.avgCpu", "history.col.peakCpu" }) AddColumn(_programs, key, HorizontalAlignment.Right, "%100");
             foreach (string key in new[] { "history.col.read", "history.col.write", "history.col.netRx", "history.col.netTx" })
                 AddColumn(_programs, key, HorizontalAlignment.Right);
             FillColumn(_programs, 0);

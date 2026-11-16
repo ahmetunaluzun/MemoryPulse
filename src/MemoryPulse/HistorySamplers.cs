@@ -28,6 +28,7 @@ namespace MemoryPulse
         private static extern bool CloseHandle(IntPtr handle);
 
         private Dictionary<int, IO_COUNTERS> _previous; // null until the first (baseline) pass
+        private Dictionary<int, ProcessCounters> _previousCpu;
 
         /// <summary>PID → program name at the last sample and the one before (for processes that just exited).</summary>
         public Dictionary<int, string> Names = new Dictionary<int, string>(), OlderNames = new Dictionary<int, string>();
@@ -50,6 +51,8 @@ namespace MemoryPulse
                         if (!groups.TryGetValue(name, out var g)) groups[name] = g = new ProgramSample { Name = name };
                         g.Count++;
                         g.WorkingSet += ProcessRam.Of(p, ram);
+                        // PID 0 is the Idle process: its "CPU time" is the time the processors had nothing to do.
+                        if (p.Id != 0 && ram != null && ram.TryGetValue(p.Id, out ProcessCounters c)) AddCpu(g, p.Id, c);
                         if (p.Id != 0 && TryReadIo(p.Id, out IO_COUNTERS io))
                         {
                             current[p.Id] = io;
@@ -60,6 +63,7 @@ namespace MemoryPulse
                 }
             }
             _previous = current;
+            _previousCpu = ram;
             OlderNames = Names;
             Names = names;
             return groups;
@@ -75,6 +79,18 @@ namespace MemoryPulse
             g.Write += (long)(known ? now.WriteBytes - old.WriteBytes : now.WriteBytes);
         }
 
+        // Same rules for CPU time; a different start time means the PID now belongs to another process.
+        private void AddCpu(ProgramSample g, int pid, ProcessCounters now)
+        {
+            if (_previousCpu == null) return;
+            bool known = _previousCpu.TryGetValue(pid, out ProcessCounters old) && old.CreateTime == now.CreateTime && now.CpuTime >= old.CpuTime;
+            g.Cpu += known ? now.CpuTime - old.CpuTime : now.CpuTime;
+        }
+
+        /// <summary>A program's share of all processors (0..100) for CPU time used during an interval.</summary>
+        public static double CpuPercent(long cpuTime, double seconds) =>
+            seconds <= 0 ? 0 : Math.Min(100, cpuTime / (seconds * TimeSpan.TicksPerSecond * Environment.ProcessorCount) * 100);
+
         private static bool TryReadIo(int pid, out IO_COUNTERS io)
         {
             io = default(IO_COUNTERS);
@@ -84,11 +100,12 @@ namespace MemoryPulse
             finally { CloseHandle(h); }
         }
 
-        /// <summary>The rows worth keeping: biggest by RAM, busiest by read/write, and the always-wanted names.</summary>
+        /// <summary>The rows worth keeping: biggest by RAM, busiest by read/write and by CPU, and the always-wanted names.</summary>
         public static List<ProgramSample> Pick(Dictionary<string, ProgramSample> all, ICollection<string> always)
         {
             var picked = new HashSet<ProgramSample>(all.Values.OrderByDescending(g => g.WorkingSet).Take(HistoryConfig.TopByRam));
             picked.UnionWith(all.Values.Where(g => g.Read + g.Write > 0).OrderByDescending(g => g.Read + g.Write).Take(HistoryConfig.TopByIo));
+            picked.UnionWith(all.Values.Where(g => g.Cpu > 0).OrderByDescending(g => g.Cpu).Take(HistoryConfig.TopByCpu));
             foreach (string name in always)
                 if (all.TryGetValue(name, out var g)) picked.Add(g);
             return picked.OrderByDescending(g => g.WorkingSet).ToList();
@@ -105,8 +122,9 @@ namespace MemoryPulse
 
         public SystemSampler()
         {
-            ReadDisk(1, out _, out _);  // rate counters and network totals need a first reading to compare with
+            ReadDisk(1, out _, out _);  // rate counters, network totals and CPU need a first reading to compare with
             ReadNetwork(out _, out _);
+            ReadCpu();
         }
 
         /// <summary>Bytes read/written on all physical disks during the interval; -1 when Windows counters are unavailable.</summary>
@@ -153,6 +171,30 @@ namespace MemoryPulse
                 Log.Write("WARN", "Disk active time counter unavailable, it will not be shown: " + ex.Message);
                 return -1;
             }
+        }
+
+        private long _cpuTotal, _cpuIdle; // 0 until the first reading
+        private bool _cpuFailed;
+
+        /// <summary>
+        /// Share of the time since the previous call in which the processors were busy (0..100, all cores together,
+        /// like Task Manager); -1 when Windows does not answer or there is no earlier reading yet.
+        /// </summary>
+        public double ReadCpu()
+        {
+            if (_cpuFailed) return -1;
+            if (!Native.TryGetSystemTimes(out long total, out long idle))
+            {
+                _cpuFailed = true;
+                Log.Write("WARN", "CPU usage could not be read (GetSystemTimes failed), it will not be shown");
+                return -1;
+            }
+            long totalDelta = total - _cpuTotal, idleDelta = idle - _cpuIdle;
+            bool first = _cpuTotal == 0;
+            _cpuTotal = total;
+            _cpuIdle = idle;
+            if (first || totalDelta <= 0) return -1;
+            return Math.Max(0, Math.Min(100, 100.0 * (totalDelta - idleDelta) / totalDelta));
         }
 
         // MIB_IF_TABLE2 / MIB_IF_ROW2 (netioapi.h): the row is read by offset, it is the same on x86 and x64.

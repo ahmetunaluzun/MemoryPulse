@@ -6,7 +6,15 @@ using System.Security.Principal;
 
 namespace MemoryPulse
 {
-    /// <summary>Windows memory APIs: overall status, page list sizes and standby purge.</summary>
+    /// <summary>One process as Windows counts it at one moment.</summary>
+    internal struct ProcessCounters
+    {
+        public long PrivateWorkingSet; // bytes
+        public long CpuTime;           // user + kernel time since the process started, 100 ns units
+        public long CreateTime;        // tells a reused PID from the process that had it before
+    }
+
+    /// <summary>Windows memory and CPU APIs: overall status, page list sizes, process counters and standby purge.</summary>
     internal static class Native
     {
         private const int SystemMemoryListInformation = 80;
@@ -125,11 +133,12 @@ namespace MemoryPulse
         }
 
         /// <summary>
-        /// Private working set of every process (PID -> bytes): the RAM only that process uses, the value
-        /// Task Manager shows as "Memory". Shared pages (DLLs, shared memory) are not counted.
-        /// Needs no administrator rights and opens no process handles. Returns null if the call fails.
+        /// Private working set and CPU time of every process, by PID. The private working set is the RAM only
+        /// that process uses, the value Task Manager shows as "Memory"; shared pages (DLLs, shared memory) are
+        /// not counted. Covers protected and system processes too: needs no administrator rights and opens no
+        /// process handles. Returns null if the call fails.
         /// </summary>
-        public static Dictionary<int, long> PrivateWorkingSets()
+        public static Dictionary<int, ProcessCounters> ProcessCounters()
         {
             int size = 1 << 20;
             for (int attempt = 0; attempt < 5; attempt++)
@@ -140,14 +149,20 @@ namespace MemoryPulse
                     int status = NtQuerySystemInformation(SystemProcessInformation, buf, size, out int needed);
                     if (status == StatusInfoLengthMismatch) { size = Math.Max(size * 2, needed + 65536); continue; }
                     if (status != 0) return null;
-                    var result = new Dictionary<int, long>();
+                    var result = new Dictionary<int, ProcessCounters>();
                     int pidOffset = 56 + 3 * IntPtr.Size; // SYSTEM_PROCESS_INFORMATION.UniqueProcessId (x64: 80, x86: 68)
                     long offset = 0;
                     while (true)
                     {
                         IntPtr entry = new IntPtr(buf.ToInt64() + offset);
                         int pid = (int)Marshal.ReadIntPtr(entry, pidOffset).ToInt64();
-                        result[pid] = Marshal.ReadInt64(entry, 8); // WorkingSetPrivateSize
+                        // WorkingSetPrivateSize, CreateTime, UserTime + KernelTime (same offsets on x86 and x64)
+                        result[pid] = new ProcessCounters
+                        {
+                            PrivateWorkingSet = Marshal.ReadInt64(entry, 8),
+                            CreateTime = Marshal.ReadInt64(entry, 32),
+                            CpuTime = Marshal.ReadInt64(entry, 40) + Marshal.ReadInt64(entry, 48)
+                        };
                         uint next = (uint)Marshal.ReadInt32(entry, 0);
                         if (next == 0) break;
                         offset += next;
@@ -160,6 +175,21 @@ namespace MemoryPulse
                 }
             }
             return null;
+        }
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        private static extern bool GetSystemTimes(out long idle, out long kernel, out long user);
+
+        /// <summary>
+        /// CPU time of all processors since Windows started (100 ns units): total and idle.
+        /// Kernel time includes idle time. Returns false if Windows does not answer.
+        /// </summary>
+        public static bool TryGetSystemTimes(out long total, out long idle)
+        {
+            total = 0;
+            if (!GetSystemTimes(out idle, out long kernel, out long user)) return false;
+            total = kernel + user;
+            return true;
         }
 
         /// <summary>Empties the standby list. Requires administrator rights.</summary>

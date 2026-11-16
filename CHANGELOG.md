@@ -2,6 +2,14 @@
 
 All notable changes to MemoryPulse are listed here. Versions follow [Semantic Versioning](https://semver.org/).
 
+## [1.8.0] - 2026-11-16
+
+- CPU in the main window: a line above the memory cards with the CPU use of the whole PC (all cores together, as in Task Manager) as a number and a bar, orange above 90%. Refreshed every 5 seconds.
+- The program list has a *CPU* column: the share of the whole processor each program uses right now, all of its processes together.
+- Usage history records CPU every minute: the whole PC and each recorded program. The programs using the most CPU are recorded too, even when they are small in RAM. *History* has a CPU chart and the highest one-minute CPU in the summary; the program table has *Average CPU* and *Peak CPU*; a program's *History (24 hours)* tab has a CPU chart. Days recorded before 1.8.0 have no CPU and show "—".
+- Clearer Turkish names: the *Commit* card is now *Ayrılan bellek*, and *Süreç sayısı* is now *İşlem sayısı*, the word Task Manager uses. The program list's tooltip explains what the count means: how many processes the program runs as (Chrome, for example, starts one for each tab).
+- The History window is wider and the program details window taller, to fit the new columns and chart.
+
 ## [1.7.1] - 2026-11-12
 
 - The RAM shown for each program is now its private working set: the memory that belongs to that program alone, the same as the *Memory* column in Task Manager. Before, it was the full working set, which also counts memory shared with other programs (such as common DLLs) once in every program that uses it, so the list could add up to more than the RAM in use. This applies to the program list, the tray tip, the program details window and the usage history.

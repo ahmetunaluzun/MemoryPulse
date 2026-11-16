@@ -31,7 +31,7 @@ namespace MemoryPulse
             Font = new Font("Segoe UI", 9.75f);
             AutoScaleMode = AutoScaleMode.Dpi;
             StartPosition = FormStartPosition.CenterParent;
-            ClientSize = new Size(760, 560);
+            ClientSize = new Size(760, 660);
             MinimumSize = new Size(560, 420);
             Padding = new Padding(10);
             ShowInTaskbar = false;

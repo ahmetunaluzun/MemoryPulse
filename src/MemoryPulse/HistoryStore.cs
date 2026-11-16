@@ -17,11 +17,13 @@ namespace MemoryPulse
 
     /// <summary>
     /// The usage history on disk: one text file per day under %APPDATA%\MemoryPulse\history.
-    ///   S,time,seconds,available,cached,commitUsed,diskRead,diskWrite,netRx,netTx
+    ///   S,time,seconds,available,cached,commitUsed,diskRead,diskWrite,netRx,netTx,cpu
     ///   D,time,drive,free,total
-    ///   P,time,program,processCount,workingSet,ioRead,ioWrite
+    ///   P,time,program,processCount,workingSet,ioRead,ioWrite,cpu
     ///   N,time,program,netRx,netTx
     /// workingSet is the private working set from 1.7.1 on (older files: full working set, shared pages included).
+    /// cpu (from 1.8.0 on, added at the end so older lines still read) is the average share of all processors
+    /// during the interval in tenths of a percent (0..1000); older lines have none and read as -1.
     /// Sizes are bytes; disk, network and I/O values are bytes during the interval; -1 = not available.
     /// </summary>
     internal static class HistoryStore
@@ -100,20 +102,39 @@ namespace MemoryPulse
             }
         }
 
-        private static int NumberCount(char kind) => kind == 'S' ? 8 : kind == 'P' ? 4 : kind == 'D' || kind == 'N' ? 2 : -1;
+        /// <summary>Numbers a line of this kind carries: lines written before 1.8.0 have fewer (no cpu).</summary>
+        private static int NumberCount(char kind, out int oldest)
+        {
+            switch (kind)
+            {
+                case 'S': oldest = 8; return 9;
+                case 'P': oldest = 4; return 5;
+                case 'D': case 'N': oldest = 2; return 2;
+                default: oldest = -1; return -1;
+            }
+        }
+
+        /// <summary>CPU percent (0..100) as written to a line; -1 stays -1.</summary>
+        public static long CpuValue(double percent) => percent < 0 ? -1 : (long)Math.Round(percent * 10);
+
+        public static double CpuPercent(long value) => value < 0 ? -1 : value / 10.0;
 
         private static bool TryParse(string text, DateTime day, out HistoryLine line)
         {
             line = default(HistoryLine);
             string[] p = text.Split(',');
             if (p[0].Length != 1) return false;
-            int count = NumberCount(p[0][0]);
+            int count = NumberCount(p[0][0], out int oldest);
             int first = p[0][0] == 'S' ? 2 : 3;
-            if (count < 0 || p.Length != first + count) return false;
+            int present = p.Length - first;
+            if (count < 0 || present < oldest || present > count) return false;
             if (!TimeSpan.TryParseExact(p[1], "hh\\:mm\\:ss", Inv, out TimeSpan time)) return false;
             var v = new long[count];
             for (int i = 0; i < count; i++)
+            {
+                if (i >= present) { v[i] = -1; continue; } // not recorded by the version that wrote the line
                 if (!long.TryParse(p[first + i], NumberStyles.AllowLeadingSign, Inv, out v[i])) return false;
+            }
             line.Kind = p[0][0];
             line.Time = day + time;
             line.Name = first == 3 ? p[2] : null;

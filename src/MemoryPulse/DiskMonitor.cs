@@ -32,9 +32,11 @@ namespace MemoryPulse
         public bool HasRates;                          // false until there is an earlier reading to compare with
         public double ReadRate, WriteRate, ActivePercent; // bytes per second, 0..100; -1 = Windows counters unavailable
         public Dictionary<string, double> ProgramRates; // program → read+write bytes per second
+        public double CpuPercent = -1;                  // whole PC, 0..100; -1 = not available yet
+        public Dictionary<string, double> ProgramCpu;   // program → share of all processors, 0..100
     }
 
-    /// <summary>Drive fullness, live disk activity and per-program read/write speed for the main window.</summary>
+    /// <summary>Drive fullness, live disk activity, CPU and per-program read/write and CPU for the main window.</summary>
     internal sealed class DiskMonitor : IDisposable
     {
         public const double LowFreeFraction = 0.10;      // a drive with less free space than this is drawn as a warning
@@ -91,13 +93,20 @@ namespace MemoryPulse
                     r.WriteRate = write;
                 }
                 r.ActivePercent = _system.ReadDiskActive();
+                double cpu = _system.ReadCpu(); // the first call (in the constructor) set the starting point
                 var programs = _processes.Sample();
                 _since.Restart();
                 if (!first && seconds <= MaxSeconds)
                 {
                     r.HasRates = true;
+                    r.CpuPercent = cpu;
                     r.ProgramRates = new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase);
-                    foreach (var p in programs.Values) r.ProgramRates[p.Name] = (p.Read + p.Write) / seconds;
+                    r.ProgramCpu = new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase);
+                    foreach (var p in programs.Values)
+                    {
+                        r.ProgramRates[p.Name] = (p.Read + p.Write) / seconds;
+                        r.ProgramCpu[p.Name] = ProcessSampler.CpuPercent(p.Cpu, seconds);
+                    }
                 }
                 return _last = r;
             }

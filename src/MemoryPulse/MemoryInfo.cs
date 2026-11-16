@@ -33,10 +33,10 @@ namespace MemoryPulse
     /// </summary>
     internal static class ProcessRam
     {
-        public static Dictionary<int, long> Snapshot() => Native.PrivateWorkingSets();
+        public static Dictionary<int, ProcessCounters> Snapshot() => Native.ProcessCounters();
 
-        public static long Of(Process p, Dictionary<int, long> snapshot) =>
-            snapshot != null && snapshot.TryGetValue(p.Id, out long bytes) ? bytes : p.WorkingSet64;
+        public static long Of(Process p, Dictionary<int, ProcessCounters> snapshot) =>
+            snapshot != null && snapshot.TryGetValue(p.Id, out ProcessCounters c) ? c.PrivateWorkingSet : p.WorkingSet64;
     }
 
     internal static class MemoryInfo

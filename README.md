@@ -16,13 +16,14 @@ MemoryPulse does the opposite: it teaches you to read the numbers, and only step
 
 ## Features
 
+- **CPU at the top:** CPU use of the whole PC as a number and a bar (orange above 90%), and a *CPU* column in the program list, both refreshed every 5 seconds like Task Manager's.
 - **Live memory view:** available, cached (standby + modified, the same value as *Cached* in Task Manager), free, modified, commit and total RAM, with a tooltip explaining each one.
 - **Programs using the most RAM,** grouped by program name. RAM here is the memory that belongs to the program alone (private working set), the same as the *Memory* column in Task Manager. A line under the list shows how much of the memory in use is programs, and how much is Windows, drivers and shared memory.
 - **Where each program runs from:** double-click a program (or right-click → *Details*) to see every running copy with its file location, description, publisher and working folder. For programs whose name says little on its own (node, python, java, PowerShell, WebView2, svchost…) it also shows the command line, so you can tell which script, app or Windows service is using the memory. *Open file location* jumps to it in Explorer.
 - **Tray icon that shows the state:** normal, amber below the warning threshold, red below the critical threshold.
 - **Notification at the critical threshold** listing the top programs, so you know what to close.
 - **Cache clearing only when you need it:** manually (with an explanation of why it is rarely needed) or automatically at the critical threshold.
-- **Usage history:** every minute MemoryPulse records available RAM, each program's memory and read/write (I/O), disk and network speed for the whole PC and free disk space, and keeps 7 days. *History* (button in the window or tray menu) shows charts for the last hour, 6 hours, 24 hours, 7 days or any range you pick, a table of which programs used how much and when, and the crashes, hangs, blue screens, unexpected shutdowns and restarts Windows logged in that range. Double-click a program to see its own last 24 hours.
+- **Usage history:** every minute MemoryPulse records available RAM, CPU use, each program's memory, CPU and read/write (I/O), disk and network speed for the whole PC and free disk space, and keeps 7 days. *History* (button in the window or tray menu) shows charts for the last hour, 6 hours, 24 hours, 7 days or any range you pick, a table of which programs used how much and when, and the crashes, hangs, blue screens, unexpected shutdowns and restarts Windows logged in that range. Double-click a program to see its own last 24 hours.
 - **Network usage per program:** right-click a program → *Watch network usage*. Works in the GitHub edition while MemoryPulse runs as administrator (*Start with Windows* starts it that way); network usage for the whole PC is always recorded.
 - **Disks at a glance:** a bar per drive with free and total space (amber below 10% free, red below 5%), live read and write speed and active time for the whole PC, and a *Disk I/O* column showing how fast each program is reading and writing right now.
 - **Disk space:** *Disk space* (button in the window or tray menu) scans a drive or folder and shows which folders take the room, as a tree sorted by size, plus the 100 largest files and the file types that take the most space. Right-click opens a folder in Explorer, copies its path or scans again from it. It only reads: nothing is deleted or moved, and nothing it finds is saved.
@@ -54,7 +55,7 @@ MemoryPulse is also on the Microsoft Store: [get it from the Store](https://apps
 | Check interval | 60 s | How often memory is measured in the background |
 | Cooldown | 10 min | Minimum time between two notifications |
 | Clear the cache automatically | On | Clears the cache at the critical threshold (needs *Start with Windows*, see below) |
-| Record usage history | On | Records memory, I/O, disk and network every minute and keeps 7 days |
+| Record usage history | On | Records memory, CPU, I/O, disk and network every minute and keeps 7 days |
 | Start with Windows | Off | Starts MemoryPulse in the tray when you sign in |
 | Language | Automatic | Windows language, English or Turkish |
 
@@ -71,9 +72,10 @@ The details window shows paths and command lines only on screen; they are never 
 | What | Windows API |
 |---|---|
 | Total, available memory and commit | `GlobalMemoryStatusEx` |
+| CPU use of the whole PC | `GetSystemTimes` |
 | Standby, modified and free page lists | `NtQuerySystemInformation(SystemMemoryListInformation)` |
 | Clearing the cache (standby list) | `NtSetSystemInformation(SystemMemoryListInformation, MemoryPurgeStandbyList)` |
-| Programs using the most RAM | Private working set per process (`NtQuerySystemInformation(SystemProcessInformation)`), grouped by name |
+| Programs using the most RAM, and their CPU | Private working set and CPU time per process (`NtQuerySystemInformation(SystemProcessInformation)`), grouped by name |
 | Disk activity and per-program disk I/O | `PhysicalDisk` performance counters, `GetProcessIoCounters` |
 | Disk space scan | `FindFirstFileExW` (basic info, large fetch), links not followed |
 

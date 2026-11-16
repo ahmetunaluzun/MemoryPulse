@@ -16,13 +16,14 @@ MemoryPulse bunun tersini yapar: rakamları okumayı öğretir ve yalnız gerçe
 
 ## Özellikler
 
+- **En üstte CPU:** tüm bilgisayarın işlemci kullanımı sayı ve çubuk olarak (%90'ın üstünde turuncu), program listesinde de *CPU* sütunu; ikisi de Görev Yöneticisi'ndeki gibi 5 saniyede bir yenilenir.
 - **Anlık bellek görünümü:** kullanılabilir, önbelleğe alınan (bekleme + değiştirilmiş; Görev Yöneticisi'ndeki *Önbelleğe alınan* ile aynı değer), boş, değiştirilmiş, ayrılan (commit) ve toplam RAM. Her birinin üzerine gelince açıklaması çıkar.
 - **En çok RAM kullanan programlar,** program adına göre gruplanmış. Buradaki RAM yalnız o programa ait bellektir (private working set); Görev Yöneticisi'ndeki *Bellek* sütunuyla aynı. Listenin altındaki satır, kullanımdaki belleğin ne kadarının programlara, ne kadarının Windows'a, sürücülere ve ortak belleğe ait olduğunu gösterir.
 - **Programın nereden çalıştığı:** bir programa çift tıklayın (ya da sağ tık → *Ayrıntılar*). Çalışan her kopyası dosya konumu, açıklaması, yayıncısı ve çalışma klasörüyle listelenir. Adı tek başına bir şey anlatmayan programlarda (node, python, java, PowerShell, WebView2, svchost…) komut satırı da görünür; böylece belleği hangi betiğin, uygulamanın ya da Windows hizmetinin kullandığını anlarsınız. *Dosya konumunu aç* dosyayı Gezgin'de gösterir.
 - **Durumu gösteren simge:** normalde düz, uyarı eşiğinin altında turuncu, kritik eşiğin altında kırmızı.
 - **Kritik eşikte bildirim:** en çok bellek kullanan programları listeler, neyi kapatabileceğinizi görürsünüz.
 - **Önbellek temizliği yalnız gerektiğinde:** elle (neden nadiren gerektiğini anlatan bir onayla) ya da kritik eşikte otomatik.
-- **Kullanım geçmişi:** MemoryPulse dakikada bir kullanılabilir RAM'i, her programın belleğini ve okuma/yazmasını (G/Ç), bilgisayarın tamamındaki disk ve ağ hızını ve disklerdeki boş alanı kaydeder, 7 gün saklar. *Geçmiş* (penceredeki düğme ya da tepsi menüsü) son 1 saat, 6 saat, 24 saat, 7 gün ya da seçtiğiniz aralık için grafikleri, hangi programın ne zaman ne kadar kullandığını gösteren tabloyu ve Windows'un o aralıkta kaydettiği program çökmelerini, donmaları, mavi ekranları, beklenmedik kapanmaları ve yeniden başlatmaları gösterir. Bir programa çift tıklayınca o programın son 24 saati de görünür.
+- **Kullanım geçmişi:** MemoryPulse dakikada bir kullanılabilir RAM'i, CPU kullanımını, her programın belleğini, CPU'sunu ve okuma/yazmasını (G/Ç), bilgisayarın tamamındaki disk ve ağ hızını ve disklerdeki boş alanı kaydeder, 7 gün saklar. *Geçmiş* (penceredeki düğme ya da tepsi menüsü) son 1 saat, 6 saat, 24 saat, 7 gün ya da seçtiğiniz aralık için grafikleri, hangi programın ne zaman ne kadar kullandığını gösteren tabloyu ve Windows'un o aralıkta kaydettiği program çökmelerini, donmaları, mavi ekranları, beklenmedik kapanmaları ve yeniden başlatmaları gösterir. Bir programa çift tıklayınca o programın son 24 saati de görünür.
 - **Program başına ağ kullanımı:** programa sağ tık → *Ağ kullanımını izle*. GitHub sürümünde, MemoryPulse yönetici olarak çalışırken ölçülür (*Windows ile başlat* onu böyle açar); bilgisayarın toplam ağ kullanımı her zaman kaydedilir.
 - **Diskler bir bakışta:** her sürücü için boş ve toplam alanı gösteren çubuk (boş alan %10'un altında turuncu, %5'in altında kırmızı), bilgisayarın tamamı için anlık okuma ve yazma hızı ile etkin süre, ve her programın o anda ne hızla okuyup yazdığını gösteren *Disk G/Ç* sütunu.
 - **Disk alanı:** *Disk alanı* (penceredeki düğme ya da tepsi menüsü) bir sürücüyü ya da klasörü tarar; yeri hangi klasörlerin kapladığını boyuta göre sıralı ağaç olarak, en büyük 100 dosyayı ve en çok yer kaplayan dosya türlerini gösterir. Sağ tıkla klasörü Gezgin'de açar, yolunu kopyalar ya da oradan yeniden tararsınız. Yalnız okur: hiçbir şeyi silmez veya taşımaz, bulduklarını kaydetmez.
@@ -54,7 +55,7 @@ MemoryPulse Microsoft Store'da da var: [Store'dan edinin](https://apps.microsoft
 | Kontrol aralığı | 60 sn | Belleğin arka planda ne sıklıkla ölçüleceği |
 | Bekleme süresi | 10 dk | İki bildirim arasındaki en kısa süre |
 | Önbelleği otomatik temizle | Açık | Kritik eşikte önbelleği temizler (*Windows ile başlat* gerekir, aşağıya bakın) |
-| Kullanım geçmişini kaydet | Açık | Belleği, G/Ç'yi, diski ve ağı dakikada bir kaydeder, 7 gün saklar |
+| Kullanım geçmişini kaydet | Açık | Belleği, CPU'yu, G/Ç'yi, diski ve ağı dakikada bir kaydeder, 7 gün saklar |
 | Windows ile başlat | Kapalı | Oturum açınca MemoryPulse'ı bildirim alanında başlatır |
 | Dil | Otomatik | Windows dili, Türkçe ya da İngilizce |
 
@@ -71,9 +72,10 @@ Ayrıntı penceresindeki yollar ve komut satırları yalnız ekranda gösterilir
 | Ne | Windows API |
 |---|---|
 | Toplam ve kullanılabilir bellek, commit | `GlobalMemoryStatusEx` |
+| Tüm bilgisayarın CPU kullanımı | `GetSystemTimes` |
 | Bekleme, değiştirilmiş ve boş sayfa listeleri | `NtQuerySystemInformation(SystemMemoryListInformation)` |
 | Önbelleği (bekleme listesini) temizleme | `NtSetSystemInformation(SystemMemoryListInformation, MemoryPurgeStandbyList)` |
-| En çok RAM kullanan programlar | Süreç başına private working set (`NtQuerySystemInformation(SystemProcessInformation)`), ada göre gruplanmış |
+| En çok RAM kullanan programlar ve CPU'ları | İşlem başına private working set ve CPU süresi (`NtQuerySystemInformation(SystemProcessInformation)`), ada göre gruplanmış |
 | Disk etkinliği ve program başına disk G/Ç | `PhysicalDisk` performans sayaçları, `GetProcessIoCounters` |
 | Disk alanı taraması | `FindFirstFileExW` (temel bilgi, büyük okuma), bağlantılar izlenmez |
 

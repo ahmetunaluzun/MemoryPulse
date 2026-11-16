@@ -21,6 +21,7 @@ namespace MemoryPulse
             ChartSeries S(string key, System.Drawing.Color color, Func<SysPoint, double> value) =>
                 new ChartSeries { Name = L.T(key), Color = color, Times = times, Values = d.System.Select(value).ToArray() };
             _ram.SetData(from, to, gap, markers, S("card.available", Palette.Normal, p => p.Available), S("card.cached", Palette.Standby, p => p.Cached));
+            _cpu.SetData(from, to, gap, markers, S("history.cpuAll", Palette.InUse, p => p.Cpu));
             _disk.SetData(from, to, gap, markers, S("history.read", Palette.InUse, p => p.DiskRead), S("history.write", Palette.Modified, p => p.DiskWrite));
             _net.SetData(from, to, gap, markers, S("history.netRx", Palette.InUse, p => p.NetRx), S("history.netTx", Palette.Modified, p => p.NetTx));
             _summary.Text = d.Empty ? "" : Summary(d);
@@ -39,6 +40,7 @@ namespace MemoryPulse
             var sb = new StringBuilder();
             sb.Append(L.T("history.summary", Fmt.Bytes(d.MinAvailable), d.MinAvailableTime.ToString("g", L.Culture),
                 Fmt.Bytes(d.DiskRead), Fmt.Bytes(d.DiskWrite), Fmt.Bytes(d.NetRx), Fmt.Bytes(d.NetTx)));
+            if (d.PeakCpu >= 0) sb.Append('\n').Append(L.T("history.cpuPeak", Fmt.Percent(d.PeakCpu), d.PeakCpuTime.ToString("g", L.Culture)));
             foreach (var drive in d.Drives.Values)
             {
                 long change = drive.LastFree - drive.FirstFree;
@@ -57,12 +59,15 @@ namespace MemoryPulse
             {
                 var item = new ListViewItem(p.Name)
                 {
-                    Tag = new IComparable[] { p.Name, p.AverageWorkingSet, p.PeakWorkingSet, p.PeakTime, p.Read, p.Write,
+                    Tag = new IComparable[] { p.Name, p.AverageWorkingSet, p.PeakWorkingSet, p.PeakTime,
+                                              p.AverageCpu, p.CpuSamples > 0 ? p.PeakCpu : -1.0, p.Read, p.Write,
                                               p.HasNet ? p.NetRx : -1L, p.HasNet ? p.NetTx : -1L }
                 };
                 item.SubItems.Add(Fmt.Bytes(p.AverageWorkingSet));
                 item.SubItems.Add(Fmt.Bytes(p.PeakWorkingSet));
                 item.SubItems.Add(p.PeakTime.ToString("g", L.Culture));
+                item.SubItems.Add(Fmt.Percent(p.AverageCpu));
+                item.SubItems.Add(p.CpuSamples > 0 ? Fmt.Percent(p.PeakCpu) : none);
                 item.SubItems.Add(Fmt.Bytes(p.Read));
                 item.SubItems.Add(Fmt.Bytes(p.Write));
                 item.SubItems.Add(p.HasNet ? Fmt.Bytes(p.NetRx) : none);

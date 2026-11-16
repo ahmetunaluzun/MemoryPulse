@@ -9,7 +9,7 @@ using System.Threading;
 namespace MemoryPulse
 {
     /// <summary>
-    /// Writes one usage record per minute on a background thread: system memory, disk, network,
+    /// Writes one usage record per minute on a background thread: system memory, CPU, disk, network,
     /// the biggest programs, and network bytes of the programs the user chose to watch.
     /// </summary>
     internal sealed class HistoryRecorder : IDisposable
@@ -124,9 +124,10 @@ namespace MemoryPulse
             var mem = MemoryInfo.Read();
             _system.ReadDisk(seconds, out long diskRead, out long diskWrite);
             _system.ReadNetwork(out long rx, out long tx);
+            long cpu = HistoryStore.CpuValue(_system.ReadCpu());
             sb.Append("S,").Append(time);
             foreach (long v in new[] { (long)Math.Round(seconds), (long)mem.Available, mem.HasDetail ? (long)mem.Cached : -1,
-                                       (long)mem.CommitUsed, diskRead, diskWrite, rx, tx })
+                                       (long)mem.CommitUsed, diskRead, diskWrite, rx, tx, cpu })
                 sb.Append(',').Append(v.ToString(Inv));
             sb.AppendLine();
             if (_sampleNo++ % HistoryConfig.DriveEverySamples == 0) SystemSampler.AppendDrives(sb, time);
@@ -135,7 +136,8 @@ namespace MemoryPulse
             var all = _processes.Sample();
             foreach (var p in ProcessSampler.Pick(all, watched))
                 sb.Append("P,").Append(time).Append(',').Append(HistoryStore.Clean(p.Name)).Append(',').Append(p.Count.ToString(Inv)).Append(',')
-                  .Append(p.WorkingSet.ToString(Inv)).Append(',').Append(p.Read.ToString(Inv)).Append(',').Append(p.Write.ToString(Inv)).AppendLine();
+                  .Append(p.WorkingSet.ToString(Inv)).Append(',').Append(p.Read.ToString(Inv)).Append(',').Append(p.Write.ToString(Inv)).Append(',')
+                  .Append(HistoryStore.CpuValue(ProcessSampler.CpuPercent(p.Cpu, seconds)).ToString(Inv)).AppendLine();
             if (_trace != null) AppendNetwork(sb, time, watched, all);
 
             HistoryStore.Append(now, sb.ToString());

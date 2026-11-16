@@ -8,7 +8,7 @@ using System.Windows.Forms;
 
 namespace MemoryPulse
 {
-    /// <summary>One program's last 24 hours: RAM chart, read/write and network totals, its crashes and hangs.</summary>
+    /// <summary>One program's last 24 hours: RAM and CPU charts, read/write and network totals, its crashes and hangs.</summary>
     internal sealed class ProgramHistoryPanel : UserControl
     {
         private const int Hours = 24;
@@ -16,7 +16,7 @@ namespace MemoryPulse
 
         private readonly string _name;
         private readonly Label _totals;
-        private readonly LineChart _chart;
+        private readonly LineChart _chart, _cpu;
         private readonly ListView _events;
         private readonly ToolTip _tips = new ToolTip { AutoPopDelay = 20000, InitialDelay = 300 };
         private bool _loaded;
@@ -28,7 +28,8 @@ namespace MemoryPulse
             var root = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1 };
             root.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
             root.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-            root.RowStyles.Add(new RowStyle(SizeType.Percent, 60));
+            root.RowStyles.Add(new RowStyle(SizeType.Percent, 35));
+            root.RowStyles.Add(new RowStyle(SizeType.Percent, 25));
             root.RowStyles.Add(new RowStyle(SizeType.AutoSize));
             root.RowStyles.Add(new RowStyle(SizeType.Percent, 40));
             Controls.Add(root);
@@ -36,15 +37,19 @@ namespace MemoryPulse
             _totals = new Label { AutoSize = true, Dock = DockStyle.Top, Margin = new Padding(4, 4, 4, 6) };
             _tips.SetToolTip(_totals, L.Tip("history.ioTip"));
             root.Controls.Add(_totals, 0, 0);
-            _chart = new LineChart { Title = L.T("history.chart.programRam"), FormatY = v => Fmt.Bytes(v, "0.##"), Dock = DockStyle.Fill,
-                                     Margin = new Padding(4), MinimumSize = new Size(0, 100) };
+            string axisSample = Fmt.Bytes(999.99 * 1024 * 1024, "0.##"); // widest RAM label: both charts' axes line up
+            _chart = new LineChart { Title = L.T("history.chart.programRam"), FormatY = v => Fmt.Bytes(v, "0.##"), AxisSample = axisSample,
+                                     Dock = DockStyle.Fill, Margin = new Padding(4), MinimumSize = new Size(0, 100) };
             root.Controls.Add(_chart, 0, 1);
+            _cpu = new LineChart { Title = L.T("history.chart.programCpu"), FormatY = Fmt.PercentAxis, FixedMax = 100,
+                                   AxisSample = axisSample, Dock = DockStyle.Fill, Margin = new Padding(4), MinimumSize = new Size(0, 80) };
+            root.Controls.Add(_cpu, 0, 2);
             root.Controls.Add(new Label { Text = L.T("history.programEvents"), AutoSize = true, ForeColor = Palette.Muted,
-                                          Margin = new Padding(4, 6, 4, 2) }, 0, 2);
+                                          Margin = new Padding(4, 6, 4, 2) }, 0, 3);
             _events = new ListView { View = View.Details, FullRowSelect = true, Dock = DockStyle.Fill, Margin = new Padding(4),
                                      ShowItemToolTips = true, HeaderStyle = ColumnHeaderStyle.Nonclickable };
             HistoryForm.AddEventColumns(_events);
-            root.Controls.Add(_events, 0, 3);
+            root.Controls.Add(_events, 0, 4);
             root.Resize += (s, e) => _totals.MaximumSize = new Size(Math.Max(100, root.ClientSize.Width - 8), 0);
         }
 
@@ -75,9 +80,15 @@ namespace MemoryPulse
                 ? L.T("history.programEmpty")
                 : L.T("history.programTotals", Fmt.Bytes(p.AverageWorkingSet), Fmt.Bytes(p.PeakWorkingSet), p.PeakTime.ToString("g", L.Culture),
                       Fmt.Bytes(p.Read), Fmt.Bytes(p.Write))
+                  + (p.CpuSamples > 0 ? "\n" + L.T("history.programCpu", Fmt.Percent(p.AverageCpu), Fmt.Percent(p.PeakCpu)) : "")
                   + "\n" + (p.HasNet ? L.T("history.programNet", Fmt.Bytes(p.NetRx), Fmt.Bytes(p.NetTx)) : L.T("history.programNoNet"));
-            _chart.SetData(from, to, TimeSpan.FromSeconds(HistoryConfig.SampleSeconds * GapSamples), HistoryForm.Markers(events),
-                new ChartSeries { Name = L.T("list.ram"), Color = Palette.InUse, Times = data.ProgramTimes.ToArray(), Values = data.ProgramRam.ToArray() });
+            var gap = TimeSpan.FromSeconds(HistoryConfig.SampleSeconds * GapSamples);
+            var markers = HistoryForm.Markers(events);
+            var times = data.ProgramTimes.ToArray();
+            _chart.SetData(from, to, gap, markers,
+                new ChartSeries { Name = L.T("list.ram"), Color = Palette.InUse, Times = times, Values = data.ProgramRam.ToArray() });
+            _cpu.SetData(from, to, gap, markers,
+                new ChartSeries { Name = L.T("list.cpu"), Color = Palette.Modified, Times = times, Values = data.ProgramCpu.ToArray() });
             _events.Items.Clear();
             if (events.Count == 0) _events.Items.Add(new ListViewItem(new[] { "", "", L.T("history.programNoEvents") }) { ForeColor = Palette.Muted });
             else _events.Items.AddRange(events.Select(HistoryForm.EventItem).ToArray());
