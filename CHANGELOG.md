@@ -2,6 +2,10 @@
 
 All notable changes to MemoryPulse are listed here. Versions follow [Semantic Versioning](https://semver.org/).
 
+## [1.8.2] - 2026-11-17
+
+- The program list also shows programs that are busy on the CPU but small in RAM. Before, the list held only the 25 programs using the most RAM, so a program using a lot of CPU with little memory could be missing. Now up to 5 such programs (1% CPU or more) are listed below the 25. The list's tooltip says how the list is made.
+
 ## [1.8.1] - 2026-11-17
 
 - Sizes right at a rounding edge are shown the same way as the others: a drive with 99.97 GB free now reads "100 GB free", not "100.0 GB", and 1023.97 MB reads "1.0 GB", not "1024 MB".

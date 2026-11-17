@@ -269,7 +269,7 @@ namespace MemoryPulse
             string keep = SelectedProgram;
             _list.BeginUpdate();
             _list.Items.Clear();
-            var top = MemoryInfo.TopProcesses(25, out ulong programs);
+            var top = MemoryInfo.TopProcesses(ListByRam, BusiestByCpu(), out ulong programs);
             ulong rest = s.InUse > programs ? s.InUse - programs : 0;
             _listTotal.Text = L.T("list.total", L.Gb(MemorySnapshot.Gb(programs)), L.Gb(MemorySnapshot.Gb(rest)),
                                   L.Gb(MemorySnapshot.Gb(s.InUse)));

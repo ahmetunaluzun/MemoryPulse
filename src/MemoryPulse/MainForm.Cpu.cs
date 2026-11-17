@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace MemoryPulse
@@ -9,6 +10,9 @@ namespace MemoryPulse
     {
         private const int CpuColumn = 3;
         private const double CpuBusyPercent = 90; // above this the CPU bar is drawn as a warning
+        private const int ListByRam = 25;            // the list shows this many programs by RAM ...
+        private const int ListByCpu = 5;             // ... plus up to this many of the busiest by CPU
+        private const double ListCpuMinPercent = 1;  // a program below this is not added for its CPU
 
         private CpuMeter _cpu;
         private Dictionary<string, double> _cpuRates; // null until the second reading
@@ -27,6 +31,19 @@ namespace MemoryPulse
             _cpu.Set(r.HasRates ? r.CpuPercent : -1);
             _cpuRates = r.ProgramCpu;
             foreach (ListViewItem item in _list.Items) item.SubItems[CpuColumn].Text = CpuText(item.Tag as string);
+        }
+
+        /// <summary>
+        /// Programs busy enough on the CPU to be listed even when their RAM would not get them in:
+        /// the <see cref="ListByCpu"/> busiest ones at or above <see cref="ListCpuMinPercent"/>.
+        /// </summary>
+        private HashSet<string> BusiestByCpu()
+        {
+            var names = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            if (_cpuRates == null) return names;
+            foreach (var kv in _cpuRates.Where(kv => kv.Value >= ListCpuMinPercent).OrderByDescending(kv => kv.Value).Take(ListByCpu))
+                names.Add(kv.Key);
+            return names;
         }
 
         private string CpuText(string program) =>

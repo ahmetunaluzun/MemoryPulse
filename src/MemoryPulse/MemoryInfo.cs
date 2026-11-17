@@ -90,7 +90,13 @@ namespace MemoryPulse
         public static List<ProcessUsage> TopProcesses(int count) => TopProcesses(count, out _);
 
         /// <summary>Same, plus the private working set of all processes together (not just the top ones).</summary>
-        public static List<ProcessUsage> TopProcesses(int count, out ulong total)
+        public static List<ProcessUsage> TopProcesses(int count, out ulong total) => TopProcesses(count, null, out total);
+
+        /// <summary>
+        /// The <paramref name="count"/> largest by RAM, plus the programs named in <paramref name="alsoInclude"/>
+        /// (the busiest ones by CPU) even when their RAM is small. Largest RAM first.
+        /// </summary>
+        public static List<ProcessUsage> TopProcesses(int count, ICollection<string> alsoInclude, out ulong total)
         {
             var ram = ProcessRam.Snapshot();
             var groups = new Dictionary<string, ProcessUsage>(StringComparer.OrdinalIgnoreCase);
@@ -110,7 +116,11 @@ namespace MemoryPulse
             }
             total = 0;
             foreach (var g in groups.Values) total += g.WorkingSet;
-            return groups.Values.OrderByDescending(g => g.WorkingSet).Take(count).ToList();
+            var ordered = groups.Values.OrderByDescending(g => g.WorkingSet).ToList();
+            var top = ordered.Take(count).ToList();
+            if (alsoInclude != null && alsoInclude.Count > 0)
+                top.AddRange(ordered.Skip(count).Where(g => alsoInclude.Contains(g.Name)));
+            return top;
         }
     }
 }
