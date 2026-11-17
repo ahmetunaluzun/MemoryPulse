@@ -87,7 +87,11 @@ namespace MemoryPulse
             if (double.IsNaN(bytes) || bytes < 0) return L.T("value.na");
             int unit = 0;
             while (bytes >= Step && unit < Units.Length - 1) { bytes /= Step; unit++; }
-            return bytes.ToString(format ?? (unit == 0 || bytes >= 100 ? "0" : "0.0"), L.Culture) + " " + Units[unit];
+            if (format != null) return bytes.ToString(format, L.Culture) + " " + Units[unit];
+            // Decide on the ROUNDED value: 99.97 must print "100", not "100.0"; 1023.97 MB must print "1.0 GB", not "1024 MB".
+            if (Math.Round(bytes, unit == 0 ? 0 : 1) >= 100) bytes = Math.Round(bytes);
+            if (bytes >= Step && unit < Units.Length - 1) { bytes /= Step; unit++; }
+            return bytes.ToString(unit == 0 || bytes >= 100 ? "0" : "0.0", L.Culture) + " " + Units[unit];
         }
 
         /// <summary>CPU share as "%12" / "%0,4" (one decimal below 10); negative or NaN = not available.</summary>

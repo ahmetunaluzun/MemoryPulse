@@ -2,6 +2,10 @@
 
 All notable changes to MemoryPulse are listed here. Versions follow [Semantic Versioning](https://semver.org/).
 
+## [1.8.1] - 2026-11-17
+
+- Sizes right at a rounding edge are shown the same way as the others: a drive with 99.97 GB free now reads "100 GB free", not "100.0 GB", and 1023.97 MB reads "1.0 GB", not "1024 MB".
+
 ## [1.8.0] - 2026-11-16
 
 - CPU in the main window: a line above the memory cards with the CPU use of the whole PC (all cores together, as in Task Manager) as a number and a bar, orange above 90%. Refreshed every 5 seconds.
