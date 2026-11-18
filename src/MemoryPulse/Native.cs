@@ -70,6 +70,16 @@ namespace MemoryPulse
         [DllImport("kernel32.dll")]
         private static extern bool CloseHandle(IntPtr handle);
 
+        [DllImport("kernel32.dll")]
+        private static extern bool TerminateProcess(IntPtr process, uint exitCode);
+
+        /// <summary>
+        /// Ends this process at once with the given exit code, skipping the normal shutdown. Used by the elevated
+        /// helper of the Store package: on Windows 11 24H2 apphelp.dll crashes (0xc0000409) while that process
+        /// shuts down, after the work is done, and the crash code would be read as failure.
+        /// </summary>
+        internal static void EndProcessNow(int exitCode) => TerminateProcess(GetCurrentProcess(), (uint)exitCode);
+
         [DllImport("user32.dll")]
         internal static extern bool DestroyIcon(IntPtr handle);
 

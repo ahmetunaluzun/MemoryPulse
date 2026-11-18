@@ -17,10 +17,17 @@ namespace MemoryPulse
         private static int Main(string[] args)
         {
             // Elevated helper modes (started by this exe through UAC).
+            int helperCode = -1;
             if (args.Length > 0 && args[0] == Elevated.PurgeArg)
-                return Elevated.PurgeStandby() == ActionResult.Ok ? 0 : 1;
-            if (args.Length >= 3 && args[0] == Elevated.StartupArg)
-                return Startup.Apply(args[1] == "on", args[2]) ? 0 : 1;
+                helperCode = Elevated.PurgeStandby() == ActionResult.Ok ? 0 : 1;
+            else if (args.Length >= 3 && args[0] == Elevated.StartupArg)
+                helperCode = Startup.Apply(args[1] == "on", args[2]) ? 0 : 1;
+            if (helperCode >= 0)
+            {
+                Log.Write("INFO", $"Elevated helper '{args[0]}' finished with code {helperCode}");
+                Native.EndProcessNow(helperCode); // see EndProcessNow: the normal shutdown crashes in the Store package
+                return helperCode;
+            }
 
             bool startHidden = Array.IndexOf(args, "--tray") >= 0 || Edition.StartedAtSignIn();
             Mutex mutex;
