@@ -2,6 +2,12 @@
 
 All notable changes to MemoryPulse are listed here. Versions follow [Semantic Versioning](https://semver.org/).
 
+## [1.9.0] - 2026-11-18
+
+- Sort the program list by clicking a column header. *Processes*, *CPU* and *Disk I/O* list the 25 programs highest in that column; *Program* sorts by name; *RAM* is the usual list. A second click on the same header reverses the order, and Windows' sort arrow shows which column is used. The list's title says what the programs were chosen by, and the choice is kept after a restart.
+- Microsoft Store edition: *Clear cache* is now available. Clearing the cache needs administrator rights, so Windows asks for them (UAC) each time; the rest of the app keeps running without them. Clearing the cache automatically at the critical threshold stays in the GitHub edition only, because it never asks through UAC.
+- Fixed: when the cache was cleared through UAC, the app could say "The cache could not be cleared" although it had been cleared. The helper that does the clearing crashed while closing, after its work was done, and that was read as a failure.
+
 ## [1.8.2] - 2026-11-17
 
 - The program list also shows programs that are busy on the CPU but small in RAM. Before, the list held only the 25 programs using the most RAM, so a program using a lot of CPU with little memory could be missing. Now up to 5 such programs (1% CPU or more) are listed below the 25. The list's tooltip says how the list is made.

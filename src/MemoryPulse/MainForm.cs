@@ -132,10 +132,10 @@ namespace MemoryPulse
 
         private Control BuildList()
         {
-            var g = new GroupBox { Text = L.T("list.title"), Dock = DockStyle.Fill, Margin = new Padding(4), Padding = new Padding(8, 6, 8, 8),
+            var g = _listBox = new GroupBox { Text = ListTitle(), Dock = DockStyle.Fill, Margin = new Padding(4), Padding = new Padding(8, 6, 8, 8),
                                    MinimumSize = new Size(0, ListMinHeight) };
             _list = new ListView { View = View.Details, FullRowSelect = true, Dock = DockStyle.Fill,
-                                   HeaderStyle = ColumnHeaderStyle.Nonclickable };
+                                   HeaderStyle = ColumnHeaderStyle.Clickable };
             int w = TextRenderer.MeasureText(L.T("list.count"), Font).Width + 30;
             _list.Columns.Add(L.T("list.program"), 200);
             _list.Columns.Add(L.T("list.count"), w, HorizontalAlignment.Right);
@@ -143,6 +143,8 @@ namespace MemoryPulse
             _list.Columns.Add(L.T("list.cpu"), TextRenderer.MeasureText("%100,0", Font).Width + 24, HorizontalAlignment.Right);
             _list.Columns.Add(L.T("list.io"), TextRenderer.MeasureText(L.T("list.io"), Font).Width + 30, HorizontalAlignment.Right);
             _list.Resize += (s, e) => FitColumns();
+            _list.ColumnClick += (s, e) => SortBy(e.Column);
+            _list.HandleCreated += (s, e) => ShowSortArrow();
             _list.DoubleClick += (s, e) => OpenDetails(SelectedProgram);
             _list.KeyDown += (s, e) => { if (e.KeyCode == Keys.Enter) OpenDetails(SelectedProgram); };
             var menu = new ContextMenuStrip();
@@ -269,7 +271,7 @@ namespace MemoryPulse
             string keep = SelectedProgram;
             _list.BeginUpdate();
             _list.Items.Clear();
-            var top = MemoryInfo.TopProcesses(ListByRam, BusiestByCpu(), out ulong programs);
+            var top = SelectRows(out ulong programs);
             ulong rest = s.InUse > programs ? s.InUse - programs : 0;
             _listTotal.Text = L.T("list.total", L.Gb(MemorySnapshot.Gb(programs)), L.Gb(MemorySnapshot.Gb(rest)),
                                   L.Gb(MemorySnapshot.Gb(s.InUse)));

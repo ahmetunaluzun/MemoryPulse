@@ -98,6 +98,16 @@ namespace MemoryPulse
         /// </summary>
         public static List<ProcessUsage> TopProcesses(int count, ICollection<string> alsoInclude, out ulong total)
         {
+            var ordered = AllProcesses(out total).OrderByDescending(g => g.WorkingSet).ToList();
+            var top = ordered.Take(count).ToList();
+            if (alsoInclude != null && alsoInclude.Count > 0)
+                top.AddRange(ordered.Skip(count).Where(g => alsoInclude.Contains(g.Name)));
+            return top;
+        }
+
+        /// <summary>Every running program (processes grouped by name), in no order, plus their RAM together.</summary>
+        public static List<ProcessUsage> AllProcesses(out ulong total)
+        {
             var ram = ProcessRam.Snapshot();
             var groups = new Dictionary<string, ProcessUsage>(StringComparer.OrdinalIgnoreCase);
             foreach (var p in Process.GetProcesses())
@@ -116,11 +126,7 @@ namespace MemoryPulse
             }
             total = 0;
             foreach (var g in groups.Values) total += g.WorkingSet;
-            var ordered = groups.Values.OrderByDescending(g => g.WorkingSet).ToList();
-            var top = ordered.Take(count).ToList();
-            if (alsoInclude != null && alsoInclude.Count > 0)
-                top.AddRange(ordered.Skip(count).Where(g => alsoInclude.Contains(g.Name)));
-            return top;
+            return groups.Values.ToList();
         }
     }
 }

@@ -26,6 +26,8 @@ namespace MemoryPulse
         [DataMember] public string Language;
         [DataMember] public bool HistoryEnabled;             // record usage every minute, keep 7 days
         [DataMember] public List<string> WatchedNetwork;     // programs whose network use is measured (needs administrator)
+        [DataMember] public int ListSortColumn;              // program list: the column it is sorted by (2 = RAM)
+        [DataMember] public bool ListSortAscending;          // program list: smallest first
 
         public Settings() => SetDefaults();
 
@@ -44,6 +46,8 @@ namespace MemoryPulse
             Language = "auto";
             HistoryEnabled = true;
             WatchedNetwork = new List<string>();
+            ListSortColumn = 2;
+            ListSortAscending = false;
         }
 
         public static Settings Load()
@@ -90,6 +94,7 @@ namespace MemoryPulse
             if (string.IsNullOrWhiteSpace(Language)) Language = "auto";
             if (WatchedNetwork == null) WatchedNetwork = new List<string>();
             WatchedNetwork.RemoveAll(string.IsNullOrWhiteSpace);
+            ListSortColumn = Clamp(ListSortColumn, 0, 4, 2);
             return this;
         }
 
