@@ -127,7 +127,7 @@ namespace MemoryPulse
         {
             string top = TopList();
             string body;
-            if (!Edition.CanClean)
+            if (!Edition.CanAutoClean)
                 body = L.T("notify.autoOff");
             else if (Settings.AutoClean && Native.IsElevated)
             {

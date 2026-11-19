@@ -20,8 +20,17 @@ namespace MemoryPulse
 
         public static readonly bool IsStore = DetectPackage();
 
-        /// <summary>Cache clearing needs administrator rights, which the Store edition cannot ask for.</summary>
-        public static bool CanClean => !IsStore;
+        /// <summary>
+        /// Clearing the cache by hand: both editions. It needs administrator rights; when the app is not elevated
+        /// (always so in the Store edition) a helper copy of the exe asks for them through UAC.
+        /// </summary>
+        public static bool CanClean => true;
+
+        /// <summary>
+        /// Clearing the cache on its own at the critical level: GitHub edition only. It never asks through UAC,
+        /// so it works only when the app already runs elevated, which the Store edition never does.
+        /// </summary>
+        public static bool CanAutoClean => !IsStore;
 
         /// <summary>The Store updates its apps itself.</summary>
         public static bool CanCheckUpdates => !IsStore;

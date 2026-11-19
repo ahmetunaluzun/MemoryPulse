@@ -38,7 +38,7 @@ namespace MemoryPulse
 
             // Store edition: no cache clearing, so no automatic clearing option.
             int row = 3;
-            if (Edition.CanClean) _autoClean = Check(t, "settings.autoClean", "tip.autoClean", s.AutoClean, row++);
+            if (Edition.CanAutoClean) _autoClean = Check(t, "settings.autoClean", "tip.autoClean", s.AutoClean, row++);
             _history = Check(t, "settings.history", "tip.history", s.HistoryEnabled, row++);
             _startup = Check(t, "settings.startup", Edition.IsStore ? "tip.startupStore" : "tip.startup", Startup.IsEnabled(), row);
             t.SetColumnSpan(_startup, 3);
