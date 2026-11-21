@@ -25,9 +25,12 @@ namespace MemoryPulse
             {
                 var t = BuildSettings(d);
                 d.Controls.Add(t);
-                Size pref = t.GetPreferredSize(new Size(SettingsWidth, 0));
-                d.ClientSize = new Size(Math.Max(SettingsWidth, pref.Width) + d.Padding.Horizontal, pref.Height + d.Padding.Vertical);
-                if (d.ShowDialog(this) != DialogResult.OK) return;
+                int width = d.LogicalToDeviceUnits(SettingsWidth);
+                Size pref = t.GetPreferredSize(new Size(width, 0));
+                d.ClientSize = new Size(Math.Max(width, pref.Width) + d.Padding.Horizontal, pref.Height + d.Padding.Vertical);
+                DialogResult result = d.ShowDialog(this);
+                ForgetTips(t); // the tooltips belong to this window; let the closed dialog's controls go
+                if (result != DialogResult.OK) return;
                 languageChanged = (string)d.Tag == "language";
             }
             if (_status != null) _status.Text = L.T("settings.saved", DateTime.Now.ToString("HH:mm:ss", L.Culture));
@@ -84,6 +87,15 @@ namespace MemoryPulse
             dialog.AcceptButton = save;
             dialog.CancelButton = cancel;
             return t;
+        }
+
+        private void ForgetTips(Control parent)
+        {
+            foreach (Control c in parent.Controls)
+            {
+                _tips.SetToolTip(c, null);
+                ForgetTips(c);
+            }
         }
 
         private Label Caption(string key) =>
