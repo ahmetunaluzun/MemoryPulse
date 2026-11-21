@@ -5,10 +5,9 @@ using System.Text;
 namespace MemoryPulse
 {
     /// <summary>
-    /// One exe, two editions. Started from the Microsoft Store package (MSIX) it is the Store edition: no cache
-    /// clearing (the Store does not accept apps that need administrator rights), no update check (the Store
-    /// updates it) and "Start with Windows" through the package's startup task. Started from the GitHub exe it
-    /// is the full edition.
+    /// One exe, two editions. Started from the Microsoft Store package (MSIX) it is the Store edition: cache
+    /// clearing only by hand through UAC (never on its own), no update check (the Store updates it) and
+    /// "Start with Windows" through the package's startup task. Started from the GitHub exe it is the full edition.
     /// </summary>
     internal static class Edition
     {
