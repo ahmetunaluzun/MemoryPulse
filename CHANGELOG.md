@@ -6,6 +6,8 @@ All notable changes to MemoryPulse are listed here. Versions follow [Semantic Ve
 
 - Sort the program list by clicking a column header. *Processes*, *CPU* and *Disk I/O* list the 25 programs highest in that column; *Program* sorts by name; *RAM* is the usual list. A second click on the same header reverses the order, and Windows' sort arrow shows which column is used. The list's title says what the programs were chosen by, and the choice is kept after a restart.
 - Microsoft Store edition: *Clear cache* is now available. Clearing the cache needs administrator rights, so Windows asks for them (UAC) each time; the rest of the app keeps running without them. Clearing the cache automatically at the critical threshold stays in the GitHub edition only, because it never asks through UAC.
+- The main window fits the screen it opens on: about 80% of the screen's height, centred, so the program list gets the room (before, it opened at a fixed 700×970 and nearly filled a 1080p screen). On a short screen it takes the whole height and scrolls.
+- Settings moved to their own window, opened with *Settings…* under the program list; *Open log* is in that window now. The window has *Save* and *Cancel*.
 - Fixed: when the cache was cleared through UAC, the app could say "The cache could not be cleared" although it had been cleared. The helper that does the clearing crashed while closing, after its work was done, and that was read as a failure.
 
 ## [1.8.2] - 2026-11-17

@@ -88,6 +88,8 @@
   "btn.refresh": "Yenile",
   "btn.taskmgr": "Görev Yöneticisi",
   "btn.log": "Logu aç",
+  "btn.settings": "Ayarlar…",
+  "settings.cancel": "İptal",
 
   "value.na": "—",
   "status.updated": "Son güncelleme: {0}",

@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
@@ -7,16 +8,36 @@ namespace MemoryPulse
 {
     internal sealed partial class MainForm
     {
+        private const int SettingsWidth = 600; // the settings window's content width at 100% scaling
+
         private NumericUpDown _critical, _warning, _interval, _cooldown;
         private CheckBox _autoClean, _startup;
         private ComboBox _language;
 
-        private Control BuildSettings()
+        /// <summary>The settings, in their own window so the main window stays short.</summary>
+        private void ShowSettings()
+        {
+            bool languageChanged;
+            using (var d = new Form { Text = L.T("settings.title"), Font = Font, AutoScaleMode = AutoScaleMode.Dpi,
+                                      FormBorderStyle = FormBorderStyle.FixedDialog, MaximizeBox = false, MinimizeBox = false,
+                                      ShowInTaskbar = false, StartPosition = FormStartPosition.CenterParent, Icon = Icon,
+                                      Padding = new Padding(12) })
+            {
+                var t = BuildSettings(d);
+                d.Controls.Add(t);
+                Size pref = t.GetPreferredSize(new Size(SettingsWidth, 0));
+                d.ClientSize = new Size(Math.Max(SettingsWidth, pref.Width) + d.Padding.Horizontal, pref.Height + d.Padding.Vertical);
+                if (d.ShowDialog(this) != DialogResult.OK) return;
+                languageChanged = (string)d.Tag == "language";
+            }
+            if (_status != null) _status.Text = L.T("settings.saved", DateTime.Now.ToString("HH:mm:ss", L.Culture));
+            _app.ApplySettings(languageChanged); // recreates this window when the language changed
+        }
+
+        private TableLayoutPanel BuildSettings(Form dialog)
         {
             var s = _app.Settings;
-            var g = new GroupBox { Text = L.T("settings.title"), Dock = DockStyle.Fill, AutoSize = true,
-                                   Margin = new Padding(4), Padding = new Padding(10, 8, 10, 8) };
-            var t = new TableLayoutPanel { Dock = DockStyle.Top, AutoSize = true, ColumnCount = 4 };
+            var t = new TableLayoutPanel { Dock = DockStyle.Fill, AutoSize = true, ColumnCount = 4 };
             t.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
             t.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50));
             t.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
@@ -36,18 +57,33 @@ namespace MemoryPulse
             t.Controls.Add(_language, 1, 2);
             t.SetColumnSpan(_language, 3);
 
-            // Store edition: no cache clearing, so no automatic clearing option.
+            // Store edition: no automatic clearing option.
             int row = 3;
             if (Edition.CanAutoClean) _autoClean = Check(t, "settings.autoClean", "tip.autoClean", s.AutoClean, row++);
             _history = Check(t, "settings.history", "tip.history", s.HistoryEnabled, row++);
-            _startup = Check(t, "settings.startup", Edition.IsStore ? "tip.startupStore" : "tip.startup", Startup.IsEnabled(), row);
-            t.SetColumnSpan(_startup, 3);
+            _startup = Check(t, "settings.startup", Edition.IsStore ? "tip.startupStore" : "tip.startup", Startup.IsEnabled(), row++);
 
-            var save = new Button { Text = L.T("settings.save"), AutoSize = true, Padding = new Padding(14, 2, 14, 2), Anchor = AnchorStyles.Right };
-            save.Click += (o, e) => SaveSettings();
-            t.Controls.Add(save, 3, row);
-            g.Controls.Add(t);
-            return g;
+            // Bottom row: the log on the left, Save and Cancel on the right.
+            var log = new LinkLabel { Text = L.T("btn.log"), AutoSize = true, Anchor = AnchorStyles.Left, Margin = new Padding(3, 18, 3, 0) };
+            log.LinkClicked += (o, e) => { if (System.IO.File.Exists(AppPaths.LogFile)) Process.Start("notepad.exe", $"\"{AppPaths.LogFile}\""); };
+            t.Controls.Add(log, 0, row);
+            var buttons = new FlowLayoutPanel { FlowDirection = FlowDirection.RightToLeft, AutoSize = true, Anchor = AnchorStyles.Right,
+                                                Margin = new Padding(0, 12, 0, 0), WrapContents = false };
+            var cancel = new Button { Text = L.T("settings.cancel"), AutoSize = true, Padding = new Padding(14, 2, 14, 2), DialogResult = DialogResult.Cancel };
+            var save = new Button { Text = L.T("settings.save"), AutoSize = true, Padding = new Padding(14, 2, 14, 2) };
+            save.Click += (o, e) =>
+            {
+                if (!SaveSettings(dialog, out bool languageChanged)) return;
+                dialog.Tag = languageChanged ? "language" : null;
+                dialog.DialogResult = DialogResult.OK;
+            };
+            buttons.Controls.Add(cancel);
+            buttons.Controls.Add(save);
+            t.Controls.Add(buttons, 1, row);
+            t.SetColumnSpan(buttons, 3);
+            dialog.AcceptButton = save;
+            dialog.CancelButton = cancel;
+            return t;
         }
 
         private Label Caption(string key) =>
@@ -74,16 +110,18 @@ namespace MemoryPulse
             return c;
         }
 
-        private void SaveSettings()
+        /// <summary>Saves the settings window's values. False when they are not valid or could not be written.</summary>
+        private bool SaveSettings(IWin32Window owner, out bool languageChanged)
         {
+            languageChanged = false;
             if (_warning.Value <= _critical.Value)
             {
-                MessageBox.Show(this, L.T("settings.warningTooLow"), L.T("settings.title"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
+                MessageBox.Show(owner, L.T("settings.warningTooLow"), L.T("settings.title"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return false;
             }
             var s = _app.Settings;
             string lang = ((LangItem)_language.SelectedItem).Code;
-            bool languageChanged = lang != s.Language;
+            languageChanged = lang != s.Language;
             s.CriticalGb = (int)_critical.Value;
             s.WarningGb = (int)_warning.Value;
             s.IntervalSec = (int)_interval.Value;
@@ -94,8 +132,8 @@ namespace MemoryPulse
             try { s.Save(); }
             catch (Exception ex) when (ex is System.IO.IOException || ex is UnauthorizedAccessException)
             {
-                MessageBox.Show(this, L.T("settings.saveFailed", ex.Message), L.T("settings.title"), MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
+                MessageBox.Show(owner, L.T("settings.saveFailed", ex.Message), L.T("settings.title"), MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
             }
 
             if (_startup.Checked != Startup.IsEnabled())
@@ -106,14 +144,12 @@ namespace MemoryPulse
                 {
                     _startup.Checked = Startup.IsEnabled();
                     if (r == ActionResult.Failed)
-                        MessageBox.Show(this, L.T("settings.startupFailed"), L.T("settings.title"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        MessageBox.Show(owner, L.T("settings.startupFailed"), L.T("settings.title"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     else if (Edition.IsStore && StoreStartup.DisabledByUser())
-                        MessageBox.Show(this, L.T("settings.startupDisabledByUser"), L.T("settings.title"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        MessageBox.Show(owner, L.T("settings.startupDisabledByUser"), L.T("settings.title"), MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }
-
-            if (_status != null) _status.Text = L.T("settings.saved", DateTime.Now.ToString("HH:mm:ss", L.Culture));
-            _app.ApplySettings(languageChanged); // recreates this window when the language changed
+            return true;
         }
 
         private sealed class LangItem

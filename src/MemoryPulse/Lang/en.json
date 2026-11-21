@@ -88,6 +88,8 @@
   "btn.refresh": "Refresh",
   "btn.taskmgr": "Task Manager",
   "btn.log": "Open log",
+  "btn.settings": "Settings…",
+  "settings.cancel": "Cancel",
 
   "value.na": "—",
   "status.updated": "Last update: {0}",

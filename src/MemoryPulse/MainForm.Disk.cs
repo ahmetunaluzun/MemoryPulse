@@ -95,11 +95,25 @@ namespace MemoryPulse
             };
         }
 
+        private const int ScreenSharePercent = 80; // the window takes this much of the screen's height when it opens
+
+        /// <summary>
+        /// Sizes the window to the screen it opens on: about 80% of its height, never less than the content needs
+        /// with the shortest list (a shorter screen gets the whole height and a scroll bar), never more than the screen.
+        /// A window reopened after a language change keeps its place and size.
+        /// </summary>
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
-            Rectangle area = Screen.FromControl(this).WorkingArea;
-            if (Height > area.Height) { Height = area.Height; Top = area.Top; }
+            if (StartPosition != FormStartPosition.CenterScreen) return;
+            Rectangle area = Screen.FromPoint(Cursor.Position).WorkingArea;
+            _root.PerformLayout();
+            int[] rows = _root.GetRowHeights();
+            int needed = rows.Sum() - rows[_listRow] + ListMinHeight + Padding.Vertical + (Height - ClientSize.Height);
+            int height = Math.Min(area.Height, Math.Max(area.Height * ScreenSharePercent / 100, needed));
+            int width = Math.Min(area.Width, Width);
+            StartPosition = FormStartPosition.Manual;
+            Bounds = new Rectangle(area.Left + (area.Width - width) / 2, area.Top + (area.Height - height) / 2, width, height);
         }
 
         /// <summary>One row per drive: name, a bar of the used share, free and total size.</summary>

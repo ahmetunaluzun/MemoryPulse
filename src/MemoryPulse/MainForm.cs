@@ -19,6 +19,8 @@ namespace MemoryPulse
         private ListView _list;
         private Label _listTotal;
         private Label _status;
+        private TableLayoutPanel _root;
+        private int _listRow;
         private MemorySnapshot _last;
 
 
@@ -29,13 +31,13 @@ namespace MemoryPulse
             Font = new Font("Segoe UI", 9.75f);
             AutoScaleMode = AutoScaleMode.Dpi;
             StartPosition = FormStartPosition.CenterScreen;
-            ClientSize = new Size(700, 970);
+            ClientSize = new Size(700, 760); // OnLoad fits it to the screen it opens on
             MinimumSize = new Size(600, 480);
             AutoScroll = true;
             Padding = new Padding(10);
             Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
 
-            var root = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1 };
+            var root = _root = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1 };
             root.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
             Controls.Add(root);
             AddRow(root, BuildCpu());
@@ -44,12 +46,11 @@ namespace MemoryPulse
             AddRow(root, BuildLegend());
             AddRow(root, BuildInfo());
             AddRow(root, BuildDisks());
-            int listRow = root.RowCount;
+            _listRow = root.RowCount;
             AddRow(root, BuildList(), SizeType.Percent, 100);
             AddRow(root, BuildButtons());
-            AddRow(root, BuildSettings());
             AddRow(root, BuildFooter());
-            KeepScrollable(root, listRow);
+            KeepScrollable(root, _listRow);
 
             _app.Updated += OnUpdated;
             _refresh.Tick += (s, e) => RefreshNow();
@@ -202,8 +203,8 @@ namespace MemoryPulse
             Add("btn.refresh", RefreshNow);
             Add("btn.history", _app.ShowHistory, "tip.historyBtn");
             Add("btn.disk", _app.ShowDiskSpace, "tip.diskBtn");
+            Add("btn.settings", ShowSettings);
             Add("btn.taskmgr", Program.OpenTaskManager);
-            Add("btn.log", () => { if (System.IO.File.Exists(AppPaths.LogFile)) Process.Start("notepad.exe", $"\"{AppPaths.LogFile}\""); });
             return f;
         }
 

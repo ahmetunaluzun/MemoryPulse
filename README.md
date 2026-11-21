@@ -48,6 +48,8 @@ MemoryPulse is also on the Microsoft Store: [get it from the Store](https://apps
 
 ## Settings
 
+Open them with *Settings…* under the program list. The settings window also has *Open log*.
+
 | Setting | Default | What it does |
 |---|---|---|
 | Critical threshold | 4 GB | Below this much available RAM: red icon, notification, optional automatic cache clearing |

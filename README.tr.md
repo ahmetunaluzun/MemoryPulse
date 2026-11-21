@@ -48,6 +48,8 @@ MemoryPulse Microsoft Store'da da var: [Store'dan edinin](https://apps.microsoft
 
 ## Ayarlar
 
+Program listesinin altındaki *Ayarlar…* düğmesiyle açılır. *Logu aç* da bu pencerededir.
+
 | Ayar | Varsayılan | Ne yapar |
 |---|---|---|
 | Kritik eşik | 4 GB | Kullanılabilir RAM bunun altına inerse: kırmızı simge, bildirim, isteğe bağlı otomatik önbellek temizliği |
